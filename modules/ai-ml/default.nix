@@ -55,7 +55,7 @@
 
     # Ollama configuration
     OLLAMA_HOST = "0.0.0.0:11434";  # Allow network access
-    OLLAMA_MODELS = "/local-llms/ollama/models";  # Custom model storage
+    # OLLAMA_MODELS path set by host config (varies by drive setup)
 
     # Python environment
     PYTHONPATH = "$PYTHONPATH:${pkgs.python312Packages.torch}/${pkgs.python312.sitePackages}";
@@ -84,12 +84,9 @@
   };
 
   # Create directories for AI models and context
+  # NOTE: /local-llms and /context are created by host-specific config
+  # (either as mount points on dual-drive, or directories on single-drive)
   systemd.tmpfiles.rules = [
-    "d /local-llms 0755 ${config.users.users.qalarc.name} users -"
-    "d /local-llms/ollama 0755 ${config.users.users.qalarc.name} users -"
-    "d /context 0755 ${config.users.users.qalarc.name} users -"
-    "d /context/github-repos 0755 ${config.users.users.qalarc.name} users -"
-    "d /context/wikipedia 0755 ${config.users.users.qalarc.name} users -"
     "d /var/lib/qalarc 0755 root root -"  # System state for AI assistants
   ];
 
@@ -113,8 +110,7 @@
     };
   };
 
-  # Add user to docker group (for container-based AI tools)
-  users.users.qalarc.extraGroups = [ "docker" "video" "render" ];
+  # Docker and GPU groups added via host config (user-specific)
 
   # CLI AI assistant interface notes:
   # - GPU stats: cat /var/lib/qalarc/gpu-stats.json
