@@ -34,13 +34,14 @@
     python312Packages.torchaudio
   ];
 
-  # Ollama service (LLM server)
-  services.ollama = {
-    enable = true;
-    # Note: ROCm acceleration not available in nixpkgs 25.05 stable
-    # Ollama will use CPU by default, or manually configure ROCm later
-    # acceleration = "rocm";  # TODO: Enable when nixpkgs supports it
-  };
+  # Ollama service (LLM server) - DISABLED for initial install
+  # Enable manually after first boot if needed
+  # services.ollama = {
+  #   enable = true;
+  #   # Note: ROCm acceleration not available in nixpkgs 25.05 stable
+  #   # Ollama will use CPU by default, or manually configure ROCm later
+  #   # acceleration = "rocm";  # TODO: Enable when nixpkgs supports it
+  # };
 
   # Environment variables for ROCm and AI workloads
   environment.variables = {
@@ -52,36 +53,30 @@
 
     # PyTorch ROCm backend
     PYTORCH_ROCM_ARCH = "gfx1151";
-
-    # Ollama configuration
-    OLLAMA_HOST = "0.0.0.0:11434";  # Allow network access
-    # OLLAMA_MODELS path set by host config (varies by drive setup)
-
-    # Python environment
-    PYTHONPATH = "$PYTHONPATH:${pkgs.python312Packages.torch}/${pkgs.python312.sitePackages}";
   };
 
-  # Systemd service for monitoring GPU usage (for AI assistant queries)
-  systemd.services.gpu-stats-export = {
-    description = "Export GPU statistics for AI assistant consumption";
-    serviceConfig = {
-      Type = "oneshot";
-      ExecStart = pkgs.writeShellScript "export-gpu-stats" ''
-        #!/bin/sh
-        # Export GPU stats as JSON for CLI AI assistants
-        ${pkgs.rocmPackages.rocm-smi}/bin/rocm-smi --showuse --showmeminfo --showtemp --json > /tmp/gpu-stats.json
-        ${pkgs.jq}/bin/jq . /tmp/gpu-stats.json > /var/lib/qalarc/gpu-stats.json
-      '';
-    };
-  };
+  # GPU stats monitoring - DISABLED for initial install
+  # Can be enabled after verifying ROCm works
+  # systemd.services.gpu-stats-export = {
+  #   description = "Export GPU statistics for AI assistant consumption";
+  #   serviceConfig = {
+  #     Type = "oneshot";
+  #     ExecStart = pkgs.writeShellScript "export-gpu-stats" ''
+  #       #!/bin/sh
+  #       # Export GPU stats as JSON for CLI AI assistants
+  #       ${pkgs.rocmPackages.rocm-smi}/bin/rocm-smi --showuse --showmeminfo --showtemp --json > /tmp/gpu-stats.json
+  #       ${pkgs.jq}/bin/jq . /tmp/gpu-stats.json > /var/lib/qalarc/gpu-stats.json
+  #     '';
+  #   };
+  # };
 
-  systemd.timers.gpu-stats-export = {
-    wantedBy = [ "timers.target" ];
-    timerConfig = {
-      OnBootSec = "1min";
-      OnUnitActiveSec = "5min";  # Update every 5 minutes
-    };
-  };
+  # systemd.timers.gpu-stats-export = {
+  #   wantedBy = [ "timers.target" ];
+  #   timerConfig = {
+  #     OnBootSec = "1min";
+  #     OnUnitActiveSec = "5min";  # Update every 5 minutes
+  #   };
+  # };
 
   # Create directories for AI models and context
   # NOTE: /local-llms and /context are created by host-specific config
@@ -96,18 +91,10 @@
   # Uncomment if needed:
   # environment.systemPackages = [ nixified-ai.packages.${pkgs.system}.comfyui-amd ];
 
-  # Docker for containerized AI workloads (optional)
+  # Docker for containerized AI workloads
   virtualisation.docker = {
     enable = true;
     enableOnBoot = true;
-    # ROCm Docker configuration
-    daemon.settings = {
-      runtimes = {
-        rocm = {
-          path = "${pkgs.rocmPackages.clr}/bin/rocm-runtime";
-        };
-      };
-    };
   };
 
   # Docker and GPU groups added via host config (user-specific)
