@@ -39,16 +39,18 @@
   #   ├─ /home/qalarc/local-llms/    # AI models directory
   #   └─ /home/qalarc/context/       # NixOS documentation context
 
+  # TODO for GUI installer: Username should be configurable during install
+
   # Time and locale
   time.timeZone = "America/New_York"; # Adjust as needed
   i18n.defaultLocale = "en_US.UTF-8";
 
   # User account
-  users.users.fivelidz = {
+  users.users.qalarc = {
     isNormalUser = true;
     description = "QALARC User";
     extraGroups = [ "wheel" "networkmanager" "docker" "video" "render" ];
-    # Set password with: passwd fivelidz
+    # Set password with: passwd qalarc
     # Or use hashedPassword for declarative password management
   };
 
@@ -133,7 +135,7 @@
     in
     [
       "L+ /opt/rocm - - - - ${rocmEnv}"
-      "d /home/fivelidz/local-llms 0755 fivelidz users -"
-      "d /home/fivelidz/context 0755 fivelidz users -"
+      "d /home/qalarc/local-llms 0755 qalarc users -"
+      "d /home/qalarc/context 0755 qalarc users -"
     ];
 }

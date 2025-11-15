@@ -17,7 +17,7 @@
       # Root filesystem snapshots
       root = {
         SUBVOLUME = "/";
-        ALLOW_USERS = [ "fivelidz" ];
+        ALLOW_USERS = [ "qalarc" ];
         TIMELINE_CREATE = true;
         TIMELINE_CLEANUP = true;
 
@@ -40,7 +40,7 @@
       # Home directory snapshots (optional - can be disabled if space is tight)
       home = {
         SUBVOLUME = "/home";
-        ALLOW_USERS = [ "fivelidz" ];
+        ALLOW_USERS = [ "qalarc" ];
         TIMELINE_CREATE = true;
         TIMELINE_CLEANUP = true;
 
