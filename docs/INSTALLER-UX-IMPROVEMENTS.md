@@ -805,5 +805,54 @@ Should show:
 
 ---
 
-**Last updated:** 2025-11-16 00:55
-**Status:** Fixed Ollama error, preparing for final rebuild attempt
+---
+
+### 16. Feature Creep in Initial Install - Do Less First ⚠️
+**Issue:** Trying to configure everything perfectly on first install causes cascading errors
+
+**What happened:**
+- Attempted to configure Ollama, ROCm, GPU monitoring, custom paths, etc. all at once
+- Each feature added complexity and potential failure points
+- User wisely suggested: *"adding in the context and models right now is more trouble than it's worth. probably best to do when developing the second round"*
+
+**Confusion level:** HIGH (from user frustration)
+
+**Philosophy shift needed:**
+- ❌ **Wrong:** Configure everything perfectly in initial install
+- ✅ **Right:** Get minimal working system, then iterate
+
+**Solution - Phased Installation:**
+
+**Phase 1: Basic System (Initial Install)**
+- ✅ Boot into NixOS
+- ✅ KDE Plasma desktop
+- ✅ Network connectivity
+- ✅ Basic drivers (AMD GPU)
+- ✅ User account with sudo
+
+**Phase 2: AI Packages (Post-Install, Manual)**
+- Install Ollama package (binary available, service disabled)
+- Install PyTorch with ROCm
+- Install ROCm tools
+- Verify GPU works with `rocm-smi`
+
+**Phase 3: AI Services (When Ready)**
+- Enable Ollama service
+- Configure model storage paths
+- Set up GPU monitoring
+- Enable ROCm acceleration
+
+**Benefits:**
+1. **Faster first boot** - Less to download/build
+2. **Easier debugging** - Fewer variables when things break
+3. **User control** - Enable features when ready
+4. **Better testing** - Test each layer before adding next
+
+**Implementation:**
+All complex features now commented out in ai-ml module.
+After successful first boot, user can uncomment and rebuild incrementally.
+
+---
+
+**Last updated:** 2025-11-16 01:05
+**Status:** Simplified configuration, ready for final install attempt
