@@ -40,6 +40,7 @@
           # Common modules
           ./modules/desktop
           ./modules/ai-ml
+          ./modules/nixos-ai-assistant
           ./modules/snapper
           ./modules/networking
           ./modules/development

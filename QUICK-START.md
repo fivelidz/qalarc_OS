@@ -37,19 +37,27 @@ Boot back to USB installer.
 
 ---
 
-## Step 3: Partition Disk
+## Step 3: Partition Disks
 
 ```bash
-# List disks
+# List all NVMe drives
 lsblk
+```
 
-# Partition (example for /dev/nvme0n1)
+**Expected drives:**
+- `/dev/nvme0n1` - 2TB (System drive)
+- `/dev/nvme1n1` - 4TB (AI models)
+- `/dev/nvme2n1` - 4TB (Context library)
+
+### System Drive (nvme0n1)
+
+```bash
 gdisk /dev/nvme0n1
 ```
 
 **Recommended layout:**
 - `/dev/nvme0n1p1`: 512MB (EFI System)
-- `/dev/nvme0n1p2`: Remaining space (Linux filesystem - will be LUKS + BTRFS)
+- `/dev/nvme0n1p2`: Remaining ~2TB (Linux filesystem - will be LUKS + BTRFS)
 
 **gdisk commands:**
 ```
@@ -68,9 +76,23 @@ w     # Write changes
 y     # Confirm
 ```
 
+### AI Models Drive (nvme1n1)
+
+```bash
+# Single BTRFS partition (optionally encrypted)
+mkfs.btrfs -L "AI-MODELS" /dev/nvme1n1
+```
+
+### Context Library Drive (nvme2n1)
+
+```bash
+# Single BTRFS partition
+mkfs.btrfs -L "CONTEXT" /dev/nvme2n1
+```
+
 ---
 
-## Step 4: Encrypt Root Partition (Recommended)
+## Step 4: Encrypt System Partition (Recommended)
 
 ```bash
 # Encrypt
@@ -89,20 +111,18 @@ cryptsetup luksOpen /dev/nvme0n1p2 cryptroot
 # Format EFI partition
 mkfs.fat -F32 /dev/nvme0n1p1
 
-# Format BTRFS on encrypted partition
+# Format BTRFS on encrypted system partition
 mkfs.btrfs /dev/mapper/cryptroot
 # (If not using encryption: mkfs.btrfs /dev/nvme0n1p2)
 
-# Mount to create subvolumes
+# Mount to create subvolumes (system drive only)
 mount /dev/mapper/cryptroot /mnt
 cd /mnt
 
-# Create all subvolumes
+# Create system subvolumes (NOT local-llms/context - those are separate drives)
 btrfs subvolume create @
 btrfs subvolume create @home
 btrfs subvolume create @nix
-btrfs subvolume create @local-llms
-btrfs subvolume create @context
 btrfs subvolume create @snapshots
 btrfs subvolume create @var-log
 
@@ -111,27 +131,31 @@ cd /
 umount /mnt
 ```
 
+**Note**: `/local-llms` and `/context` are already formatted as separate drives in Step 3.
+
 ---
 
 ## Step 6: Mount Everything
 
 ```bash
-# Mount root subvolume
+# Mount root subvolume (system drive)
 mount -o subvol=@,compress=zstd:3,noatime /dev/mapper/cryptroot /mnt
 
 # Create mount points
 mkdir -p /mnt/{boot,home,nix,local-llms,context,.snapshots,var/log}
 
-# Mount all subvolumes
+# Mount system subvolumes
 mount -o subvol=@home,compress=zstd:3,noatime /dev/mapper/cryptroot /mnt/home
 mount -o subvol=@nix,noatime /dev/mapper/cryptroot /mnt/nix
-mount -o subvol=@local-llms,compress=zstd:1,noatime /dev/mapper/cryptroot /mnt/local-llms
-mount -o subvol=@context,compress=zstd:3,noatime /dev/mapper/cryptroot /mnt/context
 mount -o subvol=@snapshots,noatime /dev/mapper/cryptroot /mnt/.snapshots
 mount -o subvol=@var-log,compress=zstd:3,noatime /dev/mapper/cryptroot /mnt/var/log
 
 # Mount EFI partition
 mount /dev/nvme0n1p1 /mnt/boot
+
+# Mount dedicated drives
+mount -o compress=zstd:1,noatime /dev/nvme1n1 /mnt/local-llms    # 4TB AI models
+mount -o compress=zstd:3,noatime /dev/nvme2n1 /mnt/context       # 4TB context library
 
 # Verify mounts
 df -h /mnt
@@ -158,18 +182,28 @@ cp -r /path/to/qalarc_OS /mnt/home/qalarc_OS
 ## Step 8: Generate Hardware Configuration
 
 ```bash
-# Generate hardware config
+# Generate hardware config (will auto-detect all 3 NVMe drives)
 nixos-generate-config --root /mnt
 
 # Copy to qalarc_OS repository
 cp /mnt/etc/nixos/hardware-configuration.nix /mnt/home/qalarc_OS/hosts/gmktec-01/
 
-# IMPORTANT: Edit hardware-configuration.nix if needed
+# Get UUIDs for the 4TB drives
+lsblk -o NAME,UUID,SIZE,FSTYPE
+
+# IMPORTANT: Edit hardware-configuration.nix
 nano /mnt/home/qalarc_OS/hosts/gmktec-01/hardware-configuration.nix
 ```
 
+**Replace UUIDs for dedicated drives:**
+- Find lines with `REPLACE-WITH-NVME1-UUID` and `REPLACE-WITH-NVME2-UUID`
+- Replace with actual UUIDs from `lsblk` output
+- nvme1n1 UUID → `/local-llms` mount
+- nvme2n1 UUID → `/context` mount
+
 **Verify the following are in hardware-configuration.nix:**
 - All BTRFS mount points with correct subvolumes
+- Correct UUIDs for 3 NVMe drives
 - LUKS configuration (if encrypted)
 - Boot loader settings
 
@@ -247,7 +281,9 @@ ollama list
 
 ---
 
-## Post-Install: Download AI Models
+## Post-Install: Download AI Models and Context
+
+### AI Models (stored in /local-llms)
 
 ```bash
 # Download Qwen2.5-Coder 32B (coding model)
@@ -262,6 +298,34 @@ ollama list
 # Test inference
 ollama run qwen2.5-coder:32b "Write a hello world in Rust"
 ```
+
+### NixOS Context Library (stored in /context)
+
+```bash
+# Update NixOS documentation context
+qalarc-nixos-update-context
+
+# This downloads:
+# - NixOS manual and wiki (~5GB)
+# - Home Manager docs (~1GB)
+# - Example configurations (~2GB)
+# - Package cache (~500MB)
+
+# Check context library status
+qalarc-nixos-ai context
+
+# Test NixOS AI assistant
+qalarc-nixos-ai ask "How do I configure nginx?"
+
+# Install MCP-NixOS for Claude Code
+qalarc-nixos-install-mcp
+```
+
+**Storage after setup:**
+- System: ~20GB (OS + apps)
+- /local-llms: ~200GB (2 large models)
+- /context: ~10GB (NixOS docs)
+- **Remaining**: 9.7TB for more models and context!
 
 ---
 
