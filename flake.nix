@@ -80,6 +80,15 @@
           snapperModule = ./modules/snapper/single-drive.nix;
         };
 
+        # Minimal configuration - just KDE + SSH (no modules)
+        gmktec-01-minimal = nixpkgs.lib.nixosSystem {
+          inherit system;
+          modules = [
+            ./hosts/gmktec-01-minimal/configuration.nix
+            ./hosts/gmktec-01-minimal/hardware-configuration.nix
+          ];
+        };
+
         # Add more hosts as needed
 
         # Custom installer ISO with qalarc_OS pre-loaded
