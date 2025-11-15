@@ -46,7 +46,11 @@
     wget
     curl
     firefox
+    nodejs_22
   ];
+
+  # Enable flakes
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
   # Enable sudo
   security.sudo.wheelNeedsPassword = false;
