@@ -1,0 +1,57 @@
+# Nix build results
+result
+result-*
+
+# Nix development
+.direnv/
+.envrc
+
+# Hardware-specific (generated during installation)
+hosts/*/hardware-configuration.nix.backup
+
+# Secrets and keys
+*.key
+*.pem
+*.crt
+!*.pub
+secrets/
+
+# Temporary files
+*.tmp
+*.swp
+*.swo
+*~
+.*.sw?
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Editor-specific
+.vscode/
+.idea/
+*.iml
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+venv/
+.venv/
+
+# Logs
+*.log
+
+# System state (runtime generated)
+/var/lib/qalarc/
+
+# Backup files
+*.bak
+*.backup
+
+# Compiled files
+*.o
+*.so
+*.dll
+*.exe
