@@ -299,6 +299,35 @@ Confusion points: 0
 
 ---
 
+### 17. Python ML Package Compatibility Issues
+
+**Issue:** Python ML packages in nixpkgs 25.05 have API changes that break builds
+
+**What happened:**
+- Build failed with error: `numpy/2.nix 35:10 has isILP64 missing`
+- The python312Packages (pytorch-bin, numpy, transformers, etc.) have breaking changes in nixpkgs 25.05
+- Trying to install ML packages on first boot causes cascading errors
+
+**User feedback:**
+- "adding in the context and models right now is more trouble than it's worth"
+- Wanted to simplify and "do less first"
+
+**Confusion level:** MEDIUM
+
+**Solution implemented:**
+- Disabled ALL Python ML packages from initial install
+- Keep only python312 and pip
+- Users can install ML packages with pip after first boot
+- Document in README that ML setup is Phase 2
+
+**Solution for GUI Installer:**
+- ✅ **Phase 2 setup** - Don't install ML packages during initial install
+- ✅ **Post-install wizard** - After first boot, offer to install AI/ML stack
+- ✅ **Progressive setup** - Get working desktop first, add features later
+- ✅ **Pip fallback** - Use pip for ML packages instead of nixpkgs if needed
+
+---
+
 ## Related Documents
 
 - [QUICK-START.md](../QUICK-START.md) - Current manual installation guide

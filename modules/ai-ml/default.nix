@@ -5,33 +5,33 @@
   # Utilizes ROCm for GPU acceleration (96GB VRAM via UMA)
 
   environment.systemPackages = with pkgs; [
-    # LLM inference engines
-    ollama  # Easy-to-use LLM server with REST API
-    # llama-cpp will be built with ROCm support via overlay
+    # LLM inference engines - DISABLED for initial install
+    # ollama  # Can be installed manually after first boot
 
-    # Python ML/AI environment
+    # Python - Basic installation only
     python312
     python312Packages.pip
-    python312Packages.pytorch-bin  # Will use ROCm via overlay
-    python312Packages.transformers
-    python312Packages.numpy
-    python312Packages.pandas
-    python312Packages.scikit-learn
-    python312Packages.jupyter
-    python312Packages.ipython
+    # All ML packages disabled for initial install - add after system is working
+    # python312Packages.pytorch-bin
+    # python312Packages.transformers
+    # python312Packages.numpy
+    # python312Packages.pandas
+    # python312Packages.scikit-learn
+    # python312Packages.jupyter
+    # python312Packages.ipython
 
     # ROCm tools
     rocmPackages.rocm-smi  # AMD GPU monitoring (like nvidia-smi)
     rocmPackages.rocminfo  # ROCm system information
     clinfo  # OpenCL information
 
-    # Model management tools
-    huggingface-cli  # Download models from Hugging Face
+    # Model management tools - DISABLED for initial install
+    # huggingface-cli  # Can be installed with pip after first boot
 
-    # Development tools for AI
-    python312Packages.torch
-    python312Packages.torchvision
-    python312Packages.torchaudio
+    # Development tools for AI - DISABLED for initial install
+    # python312Packages.torch
+    # python312Packages.torchvision
+    # python312Packages.torchaudio
   ];
 
   # Ollama service (LLM server) - DISABLED for initial install
