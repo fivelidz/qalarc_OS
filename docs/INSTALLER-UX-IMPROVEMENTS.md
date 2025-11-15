@@ -328,6 +328,52 @@ Confusion points: 0
 
 ---
 
+### 18. Hardware Configuration UUID Placeholders - CRITICAL BUG ⚠️
+
+**Issue:** Copied hardware-configuration.nix has placeholder UUIDs instead of actual partition UUIDs
+
+**What happened:**
+- Created minimal boot configuration by copying hardware-configuration.nix between host configs
+- File contained `REPLACE-WITH-ACTUAL-UUID` placeholders instead of real UUIDs
+- System built successfully but failed at boot with: "mounting /dev/disk/by-uuid/REPLACE-WITH-ACTUAL-UUID on /mnt-root/"
+- Boot entry was created but unusable
+- User had to boot into old working entry, manually run `blkid`, edit UUIDs, and rebuild
+- Additionally, /boot partition was incorrectly set to btrfs instead of vfat
+- Required multiple emergency mode sessions to fix
+
+**User feedback:**
+- "fundamental problem with the install?"
+- "Can I just restart the install process?"
+- Extreme frustration after multiple failed boot attempts
+
+**Confusion level:** CRITICAL ⚠️
+
+**Root cause:**
+- Manually copying hardware-configuration.nix between hosts doesn't update UUIDs
+- No validation that UUIDs are valid before building
+- Build succeeds even with placeholder UUIDs, but boot fails
+- Old boot entries persist, making it unclear which entry to boot
+
+**Solution implemented:**
+1. Boot into working kernel
+2. Run `blkid` to get actual UUIDs
+3. Manually edit `/etc/nixos/hardware-configuration.nix` with correct UUIDs
+4. Change /boot fsType from "btrfs" to "vfat"
+5. Mount /boot partition manually
+6. Run `nixos-rebuild switch --install-bootloader`
+7. Copy fixed hardware-configuration.nix to flake directory
+8. Rebuild with flake
+
+**Solution for GUI Installer:**
+- ✅ **Auto-detect UUIDs** - Never use placeholders, always detect actual partition UUIDs with blkid
+- ✅ **Validate before build** - Check that all UUIDs in config actually exist on system
+- ✅ **Detect filesystem types** - Auto-detect fsType (vfat for /boot, btrfs for root)
+- ✅ **Pre-flight checks** - Verify /boot is FAT32 before installing bootloader
+- ✅ **Clean boot menu** - Remove old/broken boot entries automatically
+- ✅ **Hardware config generation** - Always generate fresh hardware-configuration.nix, never copy
+
+---
+
 ## Related Documents
 
 - [QUICK-START.md](../QUICK-START.md) - Current manual installation guide
