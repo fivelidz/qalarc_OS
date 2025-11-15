@@ -68,7 +68,12 @@
     {
       # Define NixOS configurations for each host
       nixosConfigurations = {
+        # Dual-drive configuration (2TB system + 4TB AI/context drives)
         gmktec-01 = mkHost "gmktec-01";
+
+        # Single-drive configuration (everything on 1.8TB drive)
+        gmktec-01-single-drive = mkHost "gmktec-01-single-drive";
+
         # Add more hosts as needed
 
         # Custom installer ISO with qalarc_OS pre-loaded
