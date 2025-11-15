@@ -8,7 +8,7 @@
   environment.systemPackages = with pkgs; [
     snapper
     snapper-gui  # GUI for browsing snapshots
-    grub-btrfs  # GRUB menu entries for snapshots
+    # grub-btrfs  # TODO: Not in nixpkgs 25.05 stable yet - add when available
 
     # Manual snapshot script
     (pkgs.writeShellScriptBin "qalarc-snapshot" ''
@@ -105,16 +105,17 @@
 
   # grub-btrfs daemon for automatic GRUB menu updates
   # This watches /.snapshots and regenerates GRUB menu when snapshots change
-  systemd.services.grub-btrfsd = {
-    description = "grub-btrfs daemon to update GRUB menu";
-    serviceConfig = {
-      Type = "simple";
-      ExecStart = "${pkgs.grub-btrfs}/bin/grub-btrfsd --syslog /.snapshots";
-      Restart = "on-failure";
-      RestartSec = "10s";
-    };
-    wantedBy = [ "multi-user.target" ];
-  };
+  # TODO: Disabled until grub-btrfs is available in nixpkgs 25.05
+  # systemd.services.grub-btrfsd = {
+  #   description = "grub-btrfs daemon to update GRUB menu";
+  #   serviceConfig = {
+  #     Type = "simple";
+  #     ExecStart = "${pkgs.grub-btrfs}/bin/grub-btrfsd --syslog /.snapshots";
+  #     Restart = "on-failure";
+  #     RestartSec = "10s";
+  #   };
+  #   wantedBy = [ "multi-user.target" ];
+  # };
 
   # Ensure snapshot directory exists
   systemd.tmpfiles.rules = [
