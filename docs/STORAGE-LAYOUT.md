@@ -3,11 +3,11 @@
 ## Hardware Configuration
 
 **GMKTEC EVO-X2 AI Storage:**
-- **Primary NVMe**: 2TB (System + /home + /nix)
-- **Secondary NVMe 1**: 4TB (Local AI models)
-- **Secondary NVMe 2**: 4TB (Context library)
+- **2x M.2 2280 PCIe 4.0 NVMe slots** (supports up to 8TB each)
+- **Slot 1 (nvme0n1)**: 2TB - System drive
+- **Slot 2 (nvme1n1)**: 4TB - AI models + Context library (combined)
 
-**Total Storage**: 10TB
+**Total Storage**: 6TB
 
 ---
 
@@ -34,11 +34,13 @@
 
 ---
 
-### NVMe 1 (4TB) - AI Models `/dev/nvme1n1`
+### NVMe 1 (4TB) - AI Models + Context `/dev/nvme1n1`
 
-**Filesystem**: BTRFS (single partition, optionally encrypted)
+**Filesystem**: BTRFS with subvolumes
 
-**Mount Point**: `/local-llms`
+**Mount Points**:
+- `/local-llms` - AI models subvolume (~3TB)
+- `/context` - Context library subvolume (~1TB)
 
 **Contents:**
 ```
@@ -59,23 +61,15 @@
     └── huggingface/   # HF cache directory
 ```
 
-**Estimated Capacity:**
-- ~50-60 models (70B-405B range with quantization)
+**Estimated Capacity (3TB for models):**
+- ~40-50 models (70B-405B range with quantization)
 - Full precision 70B: ~140GB each
 - Quantized 70B: ~40-70GB each
-- 4TB = ~80 quantized 70B models OR ~28 full precision 70B models
+- 3TB = ~60 quantized 70B models OR ~21 full precision 70B models
 
 **Compression**: Minimal (zstd:1) - AI models already compressed
 
 **Snapshots**: Optional, mainly for rollback after model updates
-
----
-
-### NVMe 2 (4TB) - Context Library `/dev/nvme2n1`
-
-**Filesystem**: BTRFS (single partition)
-
-**Mount Point**: `/context`
 
 **Contents:**
 ```
@@ -155,18 +149,21 @@
     └── wiki-index/             # Wikipedia search
 ```
 
-**Estimated Capacity:**
-- Wikipedia offline: ~100GB compressed
+**Estimated Capacity (1TB for context):**
 - NixOS docs + examples: ~50GB
-- Programming docs: ~200GB
-- Research papers: ~500GB
-- Stack Exchange dumps: ~100GB
-- Code datasets: ~1TB
-- **Remaining**: ~2TB for expansion
+- Wikipedia offline (compressed subset): ~50GB
+- Programming docs: ~100GB
+- Research papers (curated): ~200GB
+- Stack Exchange dumps (selected): ~50GB
+- Code datasets (samples): ~300GB
+- RAG indexes: ~50GB
+- **Remaining**: ~200GB for expansion
 
 **Compression**: Medium (zstd:3) - Good balance for text
 
 **Snapshots**: Daily snapshots of index updates
+
+**Note**: This is a curated 1TB subset. Full datasets can be stored on external drives and selectively copied as needed.
 
 ---
 
@@ -183,18 +180,17 @@
 
   # ... other system subvolumes ...
 
-  # AI Models drive (4TB)
+  # AI Models + Context drive (4TB, shared)
   fileSystems."/local-llms" = {
     device = "/dev/disk/by-uuid/XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX";
     fsType = "btrfs";
-    options = [ "compress=zstd:1" "noatime" ];
+    options = [ "subvol=@local-llms" "compress=zstd:1" "noatime" ];
   };
 
-  # Context library drive (4TB)
   fileSystems."/context" = {
-    device = "/dev/disk/by-uuid/YYYYYYYY-YYYY-YYYY-YYYY-YYYYYYYYYYYY";
+    device = "/dev/disk/by-uuid/XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX";  # Same UUID as /local-llms
     fsType = "btrfs";
-    options = [ "compress=zstd:3" "noatime" ];
+    options = [ "subvol=@context" "compress=zstd:3" "noatime" ];
   };
 }
 ```
@@ -206,17 +202,22 @@
 ### During NixOS Installation:
 
 ```bash
-# Format AI models drive
-mkfs.btrfs -L "AI-MODELS" /dev/nvme1n1
+# Format second drive
+mkfs.btrfs -L "AI-DATA" /dev/nvme1n1
 
-# Format context library drive
-mkfs.btrfs -L "CONTEXT" /dev/nvme2n1
-
-# Mount during installation
+# Mount and create subvolumes
 mount /dev/nvme1n1 /mnt/local-llms
-mount /dev/nvme2n1 /mnt/context
+cd /mnt/local-llms
+btrfs subvolume create @local-llms
+btrfs subvolume create @context
+cd /
+umount /mnt/local-llms
 
-# Get UUIDs for configuration
+# Mount both subvolumes
+mount -o subvol=@local-llms,compress=zstd:1,noatime /dev/nvme1n1 /mnt/local-llms
+mount -o subvol=@context,compress=zstd:3,noatime /dev/nvme1n1 /mnt/context
+
+# Get UUID for configuration
 lsblk -o NAME,UUID,SIZE,FSTYPE
 ```
 

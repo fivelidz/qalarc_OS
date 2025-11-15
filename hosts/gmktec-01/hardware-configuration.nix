@@ -41,20 +41,19 @@
     options = [ "subvol=@nix" "noatime" ]; # No compression for Nix store
   };
 
-  # /local-llms - AI models (4TB dedicated NVMe drive #1)
+  # /local-llms - AI models (4TB drive, subvolume)
   # Run 'lsblk -o NAME,UUID,SIZE,FSTYPE' and replace UUID below
   fileSystems."/local-llms" = {
     device = "/dev/disk/by-uuid/REPLACE-WITH-NVME1-UUID";
     fsType = "btrfs";
-    options = [ "compress=zstd:1" "noatime" ];
+    options = [ "subvol=@local-llms" "compress=zstd:1" "noatime" ];
   };
 
-  # /context - Context library (4TB dedicated NVMe drive #2)
-  # Run 'lsblk -o NAME,UUID,SIZE,FSTYPE' and replace UUID below
+  # /context - Context library (4TB drive, subvolume - SAME UUID as /local-llms)
   fileSystems."/context" = {
-    device = "/dev/disk/by-uuid/REPLACE-WITH-NVME2-UUID";
+    device = "/dev/disk/by-uuid/REPLACE-WITH-NVME1-UUID";  # Same UUID, different subvol
     fsType = "btrfs";
-    options = [ "compress=zstd:3" "noatime" ];
+    options = [ "subvol=@context" "compress=zstd:3" "noatime" ];
   };
 
   fileSystems."/.snapshots" = {

@@ -46,8 +46,7 @@ lsblk
 
 **Expected drives:**
 - `/dev/nvme0n1` - 2TB (System drive)
-- `/dev/nvme1n1` - 4TB (AI models)
-- `/dev/nvme2n1` - 4TB (Context library)
+- `/dev/nvme1n1` - 4TB (AI models + Context library combined)
 
 ### System Drive (nvme0n1)
 
@@ -76,18 +75,11 @@ w     # Write changes
 y     # Confirm
 ```
 
-### AI Models Drive (nvme1n1)
+### AI + Context Drive (nvme1n1)
 
 ```bash
-# Single BTRFS partition (optionally encrypted)
-mkfs.btrfs -L "AI-MODELS" /dev/nvme1n1
-```
-
-### Context Library Drive (nvme2n1)
-
-```bash
-# Single BTRFS partition
-mkfs.btrfs -L "CONTEXT" /dev/nvme2n1
+# Single BTRFS partition with subvolumes
+mkfs.btrfs -L "AI-DATA" /dev/nvme1n1
 ```
 
 ---
@@ -119,7 +111,7 @@ mkfs.btrfs /dev/mapper/cryptroot
 mount /dev/mapper/cryptroot /mnt
 cd /mnt
 
-# Create system subvolumes (NOT local-llms/context - those are separate drives)
+# Create system subvolumes
 btrfs subvolume create @
 btrfs subvolume create @home
 btrfs subvolume create @nix
@@ -129,9 +121,17 @@ btrfs subvolume create @var-log
 # Unmount
 cd /
 umount /mnt
-```
 
-**Note**: `/local-llms` and `/context` are already formatted as separate drives in Step 3.
+# Now create subvolumes on second drive
+mount /dev/nvme1n1 /mnt
+cd /mnt
+btrfs subvolume create @local-llms
+btrfs subvolume create @context
+
+# Unmount
+cd /
+umount /mnt
+```
 
 ---
 
@@ -153,9 +153,9 @@ mount -o subvol=@var-log,compress=zstd:3,noatime /dev/mapper/cryptroot /mnt/var/
 # Mount EFI partition
 mount /dev/nvme0n1p1 /mnt/boot
 
-# Mount dedicated drives
-mount -o compress=zstd:1,noatime /dev/nvme1n1 /mnt/local-llms    # 4TB AI models
-mount -o compress=zstd:3,noatime /dev/nvme2n1 /mnt/context       # 4TB context library
+# Mount second drive subvolumes
+mount -o subvol=@local-llms,compress=zstd:1,noatime /dev/nvme1n1 /mnt/local-llms
+mount -o subvol=@context,compress=zstd:3,noatime /dev/nvme1n1 /mnt/context
 
 # Verify mounts
 df -h /mnt
@@ -188,22 +188,22 @@ nixos-generate-config --root /mnt
 # Copy to qalarc_OS repository
 cp /mnt/etc/nixos/hardware-configuration.nix /mnt/home/qalarc_OS/hosts/gmktec-01/
 
-# Get UUIDs for the 4TB drives
+# Get UUID for the second drive
 lsblk -o NAME,UUID,SIZE,FSTYPE
 
 # IMPORTANT: Edit hardware-configuration.nix
 nano /mnt/home/qalarc_OS/hosts/gmktec-01/hardware-configuration.nix
 ```
 
-**Replace UUIDs for dedicated drives:**
-- Find lines with `REPLACE-WITH-NVME1-UUID` and `REPLACE-WITH-NVME2-UUID`
-- Replace with actual UUIDs from `lsblk` output
-- nvme1n1 UUID → `/local-llms` mount
-- nvme2n1 UUID → `/context` mount
+**Replace UUID for second drive:**
+- Find lines with `REPLACE-WITH-NVME1-UUID`
+- Replace with actual UUID from `lsblk` output (nvme1n1)
+- This UUID is used for BOTH `/local-llms` and `/context` (same drive, different subvolumes)
 
 **Verify the following are in hardware-configuration.nix:**
 - All BTRFS mount points with correct subvolumes
-- Correct UUIDs for 3 NVMe drives
+- Correct UUIDs for both NVMe drives
+- Both `/local-llms` and `/context` point to same UUID with different subvols
 - LUKS configuration (if encrypted)
 - Boot loader settings
 
@@ -322,10 +322,11 @@ qalarc-nixos-install-mcp
 ```
 
 **Storage after setup:**
-- System: ~20GB (OS + apps)
-- /local-llms: ~200GB (2 large models)
-- /context: ~10GB (NixOS docs)
-- **Remaining**: 9.7TB for more models and context!
+- System drive (2TB): ~20GB used, ~1.98TB free
+- AI/Context drive (4TB):
+  - /local-llms: ~200GB (2-3 large models)
+  - /context: ~10GB (NixOS docs)
+  - **Remaining**: ~3.8TB for more models and context!
 
 ---
 
