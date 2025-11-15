@@ -501,5 +501,67 @@ Confusion points: 0
 
 ---
 
-**Last updated:** 2025-11-15 23:45
-**Status:** Installation complete, configuring for single-drive setup
+### 12. Hardcoded Username - Configuration Inflexibility ⚠️
+**Issue:** Username is hardcoded in configuration files, not configurable during install
+
+**What happened:**
+- Configuration files hardcode username as "qalarc"
+- User wanted to use this username, but it was coincidental
+- No way to customize username during installation
+- Had to manually edit multiple configuration files to change username
+
+**User quote:** *"this should be able to be setup by new users though normally on install though right?"*
+
+**Confusion level:** Medium-High
+
+**Files affected:**
+- `configuration.nix` - `users.users.qalarc`
+- `systemd.tmpfiles.rules` - `/home/qalarc/local-llms`
+- `snapper` modules - `ALLOW_USERS = [ "qalarc" ]`
+
+**Solution for GUI Installer:**
+- ✅ **Username prompt during installation:**
+  ```
+  ┌─────────────────────────────────────────┐
+  │  User Account Setup                     │
+  │                                         │
+  │  Username: [____________]              │
+  │            (letters, numbers, -, _)    │
+  │                                         │
+  │  Full name: [____________]             │
+  │                                         │
+  │  Password: [************]              │
+  │  Confirm:  [************]              │
+  │                                         │
+  │  ☑ Add to wheel group (sudo access)   │
+  │  ☑ Add to docker group                │
+  │  ☑ Add to video/render groups         │
+  │                                         │
+  │  [ Continue ]                           │
+  └─────────────────────────────────────────┘
+  ```
+- ✅ **Dynamic configuration generation:**
+  - Replace `qalarc` with `${username}` in templates
+  - Generate configuration files at install time
+  - No hardcoded usernames in final config
+- ✅ **Validation:**
+  - Check username is valid (no spaces, special chars)
+  - Check username doesn't conflict with system users
+  - Password strength indicator
+
+**Technical implementation:**
+```nix
+# Instead of hardcoded:
+users.users.qalarc = { ... };
+
+# Use variable substitution:
+users.users.${config.qalarc.username} = { ... };
+
+# Or generate from installer input:
+users.users."${username}" = { ... };
+```
+
+---
+
+**Last updated:** 2025-11-16 00:15
+**Status:** Fixing configuration errors, about to rebuild system
