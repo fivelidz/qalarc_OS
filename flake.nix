@@ -23,7 +23,7 @@
       system = "x86_64-linux";
 
       # Helper function to create a host configuration
-      mkHost = hostname: nixpkgs.lib.nixosSystem {
+      mkHost = { hostname, snapperModule ? ./modules/snapper }: nixpkgs.lib.nixosSystem {
         inherit system;
         specialArgs = {
           inherit inputs;
@@ -41,7 +41,7 @@
           ./modules/desktop
           ./modules/ai-ml
           ./modules/nixos-ai-assistant
-          ./modules/snapper
+          snapperModule  # Can be default or single-drive variant
           ./modules/networking
           ./modules/development
           ./modules/media
@@ -69,10 +69,16 @@
       # Define NixOS configurations for each host
       nixosConfigurations = {
         # Dual-drive configuration (2TB system + 4TB AI/context drives)
-        gmktec-01 = mkHost "gmktec-01";
+        gmktec-01 = mkHost {
+          hostname = "gmktec-01";
+          # Uses default snapper (includes /context subvolume)
+        };
 
         # Single-drive configuration (everything on 1.8TB drive)
-        gmktec-01-single-drive = mkHost "gmktec-01-single-drive";
+        gmktec-01-single-drive = mkHost {
+          hostname = "gmktec-01-single-drive";
+          snapperModule = ./modules/snapper/single-drive.nix;
+        };
 
         # Add more hosts as needed
 

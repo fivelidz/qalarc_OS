@@ -119,7 +119,7 @@
     HSA_OVERRIDE_GFX_VERSION = "11.5.1"; # For gfx1151 (Radeon 8060S)
   };
 
-  # Link ROCm to /opt/rocm for compatibility
+  # Link ROCm to /opt/rocm for compatibility + create AI directories
   systemd.tmpfiles.rules =
     let
       rocmEnv = pkgs.symlinkJoin {
@@ -133,11 +133,7 @@
     in
     [
       "L+ /opt/rocm - - - - ${rocmEnv}"
+      "d /home/fivelidz/local-llms 0755 fivelidz users -"
+      "d /home/fivelidz/context 0755 fivelidz users -"
     ];
-
-  # Create local-llms and context directories in user home
-  systemd.tmpfiles.rules = [
-    "d /home/fivelidz/local-llms 0755 fivelidz users -"
-    "d /home/fivelidz/context 0755 fivelidz users -"
-  ];
 }
