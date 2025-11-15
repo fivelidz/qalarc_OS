@@ -741,5 +741,69 @@ Should show:
 
 ---
 
-**Last updated:** 2025-11-16 00:45
-**Status:** Investigating remaining build errors (1571:13, 1083:7)
+---
+
+### 15. Package API Changes Between NixOS Versions ⚠️
+**Issue:** Configuration written for newer NixOS doesn't work on stable channel
+
+**What happened:**
+- Configuration assumed `services.ollama.acceleration = "rocm"` option exists
+- This option doesn't exist in nixpkgs 25.05 stable
+- Error: "unexpected argument rocmSupport" in ollama/package.nix
+- Also affected: `grub-btrfs` package missing entirely
+
+**Confusion level:** HIGH ⚠️
+
+**Root cause:**
+- Configuration was likely written/tested against nixpkgs unstable
+- Stable channel (25.05) has older package versions
+- No version compatibility checking in place
+
+**Packages affected:**
+1. **grub-btrfs** - Not in 25.05 stable (needed for snapshot boot entries)
+2. **ollama ROCm support** - Not in 25.05 stable (needed for GPU acceleration)
+
+**Solution for development:**
+- ✅ **Document minimum NixOS version:**
+  ```nix
+  # flake.nix
+  {
+    description = "qalarc_OS - Requires NixOS 25.05+";
+    # Some features require nixpkgs unstable:
+    # - Ollama with ROCm
+    # - grub-btrfs
+  }
+  ```
+- ✅ **Feature detection instead of hardcoded options:**
+  ```nix
+  services.ollama = {
+    enable = true;
+    # Only set acceleration if supported
+    acceleration = lib.mkIf (lib.hasAttr "acceleration" options.services.ollama) "rocm";
+  };
+  ```
+- ✅ **Provide fallback configurations:**
+  - ROCm disabled → CPU inference (slower but works)
+  - grub-btrfs disabled → Manual snapshot selection
+
+**Solution for GUI installer:**
+- ✅ **Detect NixOS channel/version:**
+  ```
+  Detected NixOS: 25.05 stable
+
+  ⚠️ Some features unavailable in this version:
+  • Ollama GPU acceleration (available in 26.05+)
+  • GRUB snapshot menu (available in unstable)
+
+  Install anyway with reduced features? [Yes] [No]
+  ```
+- ✅ **Option to use unstable channel:**
+  ```
+  □ Use NixOS stable (recommended)
+  □ Use NixOS unstable (all features, less stable)
+  ```
+
+---
+
+**Last updated:** 2025-11-16 00:55
+**Status:** Fixed Ollama error, preparing for final rebuild attempt
