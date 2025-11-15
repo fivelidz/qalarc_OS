@@ -563,5 +563,59 @@ users.users."${username}" = { ... };
 
 ---
 
-**Last updated:** 2025-11-16 00:15
-**Status:** Fixing configuration errors, about to rebuild system
+### 13. Configuration File Errors - Duplicate Definitions ⚠️
+**Issue:** Multiple NixOS modules had duplicate `environment.systemPackages` definitions
+
+**What happened:**
+- Five module files defined `environment.systemPackages =` twice in the same file
+- NixOS build failed with "already defined" errors at multiple line numbers
+- Error messages were cryptic: "lib/modules.nix:359:18", "lib/modules.nix:295:9"
+- User had to wait through failed build to discover the issue
+
+**Files with errors:**
+- `modules/snapper/single-drive.nix` (line 8 and 103)
+- `modules/media/default.nix` (line 6 and 66)
+- `modules/networking/default.nix` (line 51 and 120)
+- `modules/torrent/default.nix` (line 7 and 95)
+- `modules/vpn-infrastructure/default.nix` (line 7 and 93)
+
+**Confusion level:** CRITICAL ⚠️
+
+**Root cause:**
+- Modules were written separately, then had helper scripts added later
+- Instead of appending to existing package list, new `environment.systemPackages =` blocks were created
+- NixOS doesn't allow the same attribute to be assigned twice
+
+**Solution for development:**
+- ✅ **Pre-commit validation:**
+  - Scan all .nix files for duplicate attribute definitions
+  - Fail CI/CD if duplicates found
+  - Suggest using `mkMerge` or combining into single list
+- ✅ **Better error messages:**
+  - NixOS should show: "environment.systemPackages defined at line 8 and line 103 in same file"
+  - Instead of: "lib/modules.nix:359:18"
+- ✅ **Linting tools:**
+  - Use `nixpkgs-fmt` or `alejandra` to format code
+  - Use `statix` to detect common NixOS mistakes
+  - Add pre-commit hooks to catch errors before push
+
+**Solution for GUI installer:**
+- ✅ **Validate generated configurations before install:**
+  ```
+  Validating configuration...
+  ✓ No duplicate definitions found
+  ✓ All modules pass syntax check
+  ✓ No conflicting options
+  ```
+- ✅ **Test build before actual install:**
+  - Run `nixos-rebuild build` first (doesn't activate)
+  - Only proceed to `nixos-rebuild switch` if build succeeds
+  - Show clear error if validation fails
+
+**Lesson learned:**
+Configuration errors should be caught BEFORE the user tries to build, not during a 30-minute installation process.
+
+---
+
+**Last updated:** 2025-11-16 00:30
+**Status:** All configuration errors fixed, ready to rebuild system
