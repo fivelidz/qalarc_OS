@@ -69,6 +69,14 @@
       nixosConfigurations = {
         gmktec-01 = mkHost "gmktec-01";
         # Add more hosts as needed
+
+        # Custom installer ISO with qalarc_OS pre-loaded
+        installer = nixpkgs.lib.nixosSystem {
+          inherit system;
+          modules = [
+            ./installer/iso-config.nix
+          ];
+        };
       };
 
       # Development shell for working on this configuration
