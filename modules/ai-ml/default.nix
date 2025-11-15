@@ -37,9 +37,9 @@
   # Ollama service (LLM server)
   services.ollama = {
     enable = true;
-    acceleration = "rocm";  # Use ROCm for AMD GPU
-    # Models will be stored in /var/lib/ollama
-    # Or customize with: home = "/local-llms/ollama";
+    # Note: ROCm acceleration not available in nixpkgs 25.05 stable
+    # Ollama will use CPU by default, or manually configure ROCm later
+    # acceleration = "rocm";  # TODO: Enable when nixpkgs supports it
   };
 
   # Environment variables for ROCm and AI workloads
