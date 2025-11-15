@@ -4,21 +4,6 @@
   # VPN Infrastructure Module
   # Comprehensive VPN system with Tailscale, WireGuard, and OpenVPN
 
-  environment.systemPackages = with pkgs; [
-    # VPN clients
-    tailscale        # Zero-config mesh VPN (primary)
-    wireguard-tools  # WireGuard CLI tools
-    openvpn          # OpenVPN client/server
-
-    # Network utilities
-    netcat
-    nmap
-    iperf3
-    traceroute
-    mtr
-    speedtest-cli
-  ];
-
   # Tailscale (Primary VPN - Zero Config Mesh Network)
   services.tailscale = {
     enable = true;
@@ -91,6 +76,19 @@
 
   # Helper scripts for VPN management
   environment.systemPackages = with pkgs; [
+    # VPN clients
+    tailscale        # Zero-config mesh VPN (primary)
+    wireguard-tools  # WireGuard CLI tools
+    openvpn          # OpenVPN client/server
+
+    # Network utilities
+    netcat
+    nmap
+    iperf3
+    traceroute
+    mtr
+    speedtest-cli
+
     # WireGuard key generation and management
     (writeShellScriptBin "qalarc-wg-keygen" ''
       #!/bin/sh

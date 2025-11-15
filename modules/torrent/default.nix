@@ -4,19 +4,6 @@
   # Torrent client system for context library distribution
   # Primary use case: Syncing large offline datasets (Wikipedia, code repos, etc.)
 
-  environment.systemPackages = with pkgs; [
-    # GUI torrent clients
-    qbittorrent      # Feature-rich, popular
-    transmission-gtk # Lightweight alternative
-
-    # CLI torrent clients
-    transmission     # Daemon + CLI
-    aria2            # Multi-protocol downloader (HTTP, FTP, BitTorrent)
-
-    # Torrent utilities
-    mktorrent        # Create .torrent files
-  ];
-
   # qBittorrent systemd service (runs as user service)
   # Accessible via web UI at http://localhost:8080
   systemd.user.services.qbittorrent = {
@@ -93,6 +80,17 @@
 
   # Helper script for creating torrents from context library
   environment.systemPackages = with pkgs; [
+    # GUI torrent clients
+    qbittorrent      # Feature-rich, popular
+    transmission-gtk # Lightweight alternative
+
+    # CLI torrent clients
+    transmission     # Daemon + CLI
+    aria2            # Multi-protocol downloader (HTTP, FTP, BitTorrent)
+
+    # Torrent utilities
+    mktorrent        # Create .torrent files
+
     (writeShellScriptBin "qalarc-create-torrent" ''
       #!/bin/sh
       # Create a .torrent file from a directory or file

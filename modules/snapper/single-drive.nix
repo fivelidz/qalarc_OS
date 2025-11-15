@@ -4,11 +4,33 @@
   # Snapper configuration for BTRFS snapshots with GRUB integration
   # Single-drive variant: Only snapshots root and home (no /context subvolume)
 
-  # Install Snapper and related tools
+  # Install Snapper and related tools + manual snapshot script
   environment.systemPackages = with pkgs; [
     snapper
     snapper-gui  # GUI for browsing snapshots
     grub-btrfs  # GRUB menu entries for snapshots
+
+    # Manual snapshot script
+    (pkgs.writeShellScriptBin "qalarc-snapshot" ''
+      #!/bin/sh
+      # Manual snapshot creation script
+
+      TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
+      DESCRIPTION="''${1:-manual-snapshot}"
+
+      # Create snapshot
+      ${pkgs.snapper}/bin/snapper --config root create \
+        --description "$DESCRIPTION-$TIMESTAMP" \
+        --cleanup-algorithm number
+
+      # Show notification (if in GUI)
+      if [ -n "$DISPLAY" ]; then
+        ${pkgs.libnotify}/bin/notify-send "Snapshot Created" \
+          "System snapshot created: $DESCRIPTION-$TIMESTAMP"
+      fi
+
+      echo "Snapshot created: $DESCRIPTION-$TIMESTAMP"
+    '')
   ];
 
   # Snapper configurations for different subvolumes
@@ -97,29 +119,5 @@
   # Ensure snapshot directory exists
   systemd.tmpfiles.rules = [
     "d /.snapshots 0750 root root -"
-  ];
-
-  # Manual snapshot script
-  environment.systemPackages = with pkgs; [
-    (pkgs.writeShellScriptBin "qalarc-snapshot" ''
-      #!/bin/sh
-      # Manual snapshot creation script
-
-      TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
-      DESCRIPTION="''${1:-manual-snapshot}"
-
-      # Create snapshot
-      ${pkgs.snapper}/bin/snapper --config root create \
-        --description "$DESCRIPTION-$TIMESTAMP" \
-        --cleanup-algorithm number
-
-      # Show notification (if in GUI)
-      if [ -n "$DISPLAY" ]; then
-        ${pkgs.libnotify}/bin/notify-send "Snapshot Created" \
-          "System snapshot created: $DESCRIPTION-$TIMESTAMP"
-      fi
-
-      echo "Snapshot created: $DESCRIPTION-$TIMESTAMP"
-    '')
   ];
 }

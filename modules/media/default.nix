@@ -60,10 +60,8 @@
     # discord
     # telegram-desktop
     # slack
-  ];
 
-  # FFmpeg helper script for common conversions
-  environment.systemPackages = with pkgs; [
+    # FFmpeg helper script for common conversions
     (writeShellScriptBin "qalarc-convert" ''
       #!/bin/sh
       # Media conversion helper for AI assistants and users

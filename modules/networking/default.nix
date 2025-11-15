@@ -48,17 +48,6 @@
 
   # Sunshine - desktop/game streaming server (for Moonlight clients)
   # Note: Sunshine may not be in nixpkgs yet, so we'll add it as an overlay or build manually
-  environment.systemPackages = with pkgs; [
-    # Sunshine is not yet in nixpkgs stable, so we'll note it for manual install or overlay
-    # For now, users can install via flatpak or compile from source
-    # sunshine  # TODO: Add when available
-
-    # Alternative: Use Steam Link or other streaming solutions
-    # For now, include dependencies
-    libva
-    libva-utils
-    vulkan-tools
-  ];
 
   # WireGuard support (if needed instead of Tailscale)
   # Uncomment to enable manual WireGuard configuration
@@ -118,6 +107,16 @@
 
   # CLI AI assistant network status script
   environment.systemPackages = with pkgs; [
+    # Sunshine is not yet in nixpkgs stable, so we'll note it for manual install or overlay
+    # For now, users can install via flatpak or compile from source
+    # sunshine  # TODO: Add when available
+
+    # Alternative: Use Steam Link or other streaming solutions
+    # For now, include dependencies
+    libva
+    libva-utils
+    vulkan-tools
+
     (writeShellScriptBin "qalarc-network-status" ''
       #!/bin/sh
       # Network status for AI assistant queries
