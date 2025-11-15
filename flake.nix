@@ -45,6 +45,8 @@
           ./modules/development
           ./modules/media
           ./modules/system-monitor
+          ./modules/torrent
+          ./modules/vpn-infrastructure
 
           # Performance overlay
           {
