@@ -1,0 +1,47 @@
+# qalarc_OS Project Repository .gitignore
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+*.egg-info/
+dist/
+build/
+
+# Qt
+*.qmlc
+*.jsc
+.qmake.stash
+
+# Nix
+result
+result-*
+.direnv/
+
+# ISO Build outputs
+usb-installer/output/
+usb-installer/flake.lock
+usb-installer/.git/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.bak
+*.log
+
+# User-specific
+.config/qalarc-welcome-shown

@@ -1,0 +1,10 @@
+# qalarc_OS Welcome Window Dependencies
+# These packages should be available in NixOS via python312Packages
+
+PyQt6>=6.6.0
+PyQt6-Qt6>=6.6.0
+requests>=2.31.0
+
+# Note: On NixOS, install via configuration.nix:
+# python312Packages.pyqt6
+# python312Packages.requests

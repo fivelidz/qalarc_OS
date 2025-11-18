@@ -1,0 +1,273 @@
+{
+  "version": "1.0.0",
+  "last_updated": "2025-11-17",
+  "models": [
+    {
+      "name": "llama3.3:70b",
+      "full_name": "Llama 3.3 70B",
+      "provider": "Meta",
+      "size_gb": 40,
+      "vram_required": 70,
+      "parameters": "70B",
+      "quantization": "Q8",
+      "category": "general",
+      "tags": ["chat", "reasoning", "general-purpose"],
+      "description": "Meta's flagship Llama 3.3 model with 70 billion parameters. Excellent for general tasks, reasoning, creative writing, and conversation. Highly capable across many domains.",
+      "recommended": true,
+      "use_cases": [
+        "General conversation and assistance",
+        "Complex reasoning tasks",
+        "Creative writing and content generation",
+        "Question answering",
+        "Summarization"
+      ],
+      "ollama_pull": "ollama pull llama3.3:70b"
+    },
+    {
+      "name": "qwen2.5:72b",
+      "full_name": "Qwen 2.5 72B",
+      "provider": "Alibaba",
+      "size_gb": 41,
+      "vram_required": 72,
+      "parameters": "72B",
+      "quantization": "Q8",
+      "category": "general",
+      "tags": ["chat", "multilingual", "reasoning", "math"],
+      "description": "Latest Qwen 2.5 model with 72 billion parameters. Exceptional multilingual support (especially Chinese), strong mathematical reasoning, and competitive with GPT-4 on many benchmarks.",
+      "recommended": true,
+      "use_cases": [
+        "Multilingual tasks (English, Chinese, and many others)",
+        "Mathematical problem solving",
+        "Advanced reasoning",
+        "Code generation",
+        "Research and analysis"
+      ],
+      "ollama_pull": "ollama pull qwen2.5:72b"
+    },
+    {
+      "name": "mistral-123b",
+      "full_name": "Mistral 123B",
+      "provider": "Mistral AI",
+      "size_gb": 63,
+      "vram_required": 63,
+      "parameters": "123B",
+      "quantization": "Q4",
+      "category": "general",
+      "tags": ["chat", "reasoning", "large-context"],
+      "description": "Mistral's largest open model. Excellent reasoning and generation capabilities with efficient quantization. Fits in 96GB VRAM with Q4 quantization.",
+      "recommended": true,
+      "use_cases": [
+        "Long context tasks",
+        "Complex reasoning",
+        "Professional writing",
+        "Analysis and research"
+      ],
+      "ollama_pull": "ollama pull mistral:123b"
+    },
+    {
+      "name": "deepseek-coder:33b",
+      "full_name": "DeepSeek Coder 33B",
+      "provider": "DeepSeek",
+      "size_gb": 19,
+      "vram_required": 33,
+      "parameters": "33B",
+      "quantization": "Q8",
+      "category": "coding",
+      "tags": ["code", "programming", "debugging", "refactoring"],
+      "description": "Specialized coding model trained on vast amounts of code. Excellent for code generation, debugging, refactoring, and explanation. Supports 86+ programming languages.",
+      "recommended": true,
+      "use_cases": [
+        "Code generation and completion",
+        "Debugging and error fixing",
+        "Code refactoring and optimization",
+        "Code documentation",
+        "Algorithm implementation"
+      ],
+      "ollama_pull": "ollama pull deepseek-coder:33b"
+    },
+    {
+      "name": "codellama:34b",
+      "full_name": "Code Llama 34B",
+      "provider": "Meta",
+      "size_gb": 19,
+      "vram_required": 34,
+      "parameters": "34B",
+      "quantization": "Q8",
+      "category": "coding",
+      "tags": ["code", "programming", "python", "javascript"],
+      "description": "Meta's specialized code generation model. Particularly strong in Python and JavaScript. Good for general programming tasks.",
+      "recommended": false,
+      "use_cases": [
+        "Python code generation",
+        "JavaScript development",
+        "Code completion",
+        "Basic debugging"
+      ],
+      "ollama_pull": "ollama pull codellama:34b"
+    },
+    {
+      "name": "mixtral:8x7b",
+      "full_name": "Mixtral 8x7B",
+      "provider": "Mistral AI",
+      "size_gb": 26,
+      "vram_required": 45,
+      "parameters": "8x7B (46.7B total)",
+      "quantization": "Q8",
+      "category": "general",
+      "tags": ["chat", "moe", "efficient", "multilingual"],
+      "description": "Mixture of Experts model with 8 expert networks of 7B parameters each. Efficient and performant for its size. Good multilingual support.",
+      "recommended": false,
+      "use_cases": [
+        "General chat",
+        "Multilingual tasks",
+        "Code generation",
+        "Content creation"
+      ],
+      "ollama_pull": "ollama pull mixtral:8x7b"
+    },
+    {
+      "name": "llama3.2:3b",
+      "full_name": "Llama 3.2 3B",
+      "provider": "Meta",
+      "size_gb": 2,
+      "vram_required": 3,
+      "parameters": "3B",
+      "quantization": "Full",
+      "category": "minimal",
+      "tags": ["lightweight", "fast", "efficient"],
+      "description": "Small but capable model. Excellent for quick tasks, testing, and scenarios where speed is more important than maximum quality. Very efficient.",
+      "recommended": true,
+      "use_cases": [
+        "Quick questions",
+        "Fast prototyping",
+        "Testing workflows",
+        "Simple assistance",
+        "Learning to use LLMs"
+      ],
+      "ollama_pull": "ollama pull llama3.2:3b"
+    },
+    {
+      "name": "llama3.2:1b",
+      "full_name": "Llama 3.2 1B",
+      "provider": "Meta",
+      "size_gb": 1.3,
+      "vram_required": 1,
+      "parameters": "1B",
+      "quantization": "Full",
+      "category": "minimal",
+      "tags": ["ultra-lightweight", "fast", "testing"],
+      "description": "Ultra-lightweight model. Pre-installed for initial testing. Good for learning the tools and very simple tasks.",
+      "recommended": false,
+      "use_cases": [
+        "Testing installation",
+        "Learning CLI tools",
+        "Very simple queries",
+        "Resource-constrained scenarios"
+      ],
+      "ollama_pull": "ollama pull llama3.2:1b",
+      "preinstalled": true
+    },
+    {
+      "name": "qwen2.5-coder:32b",
+      "full_name": "Qwen 2.5 Coder 32B",
+      "provider": "Alibaba",
+      "size_gb": 18,
+      "vram_required": 32,
+      "parameters": "32B",
+      "quantization": "Q8",
+      "category": "coding",
+      "tags": ["code", "multilingual-code", "chinese-comments"],
+      "description": "Qwen's specialized coding model. Excellent for code generation with multilingual code comments. Strong in both English and Chinese programming contexts.",
+      "recommended": false,
+      "use_cases": [
+        "Multilingual code generation",
+        "Chinese code documentation",
+        "Cross-language development",
+        "Code translation"
+      ],
+      "ollama_pull": "ollama pull qwen2.5-coder:32b"
+    },
+    {
+      "name": "phi3:14b",
+      "full_name": "Phi-3 14B",
+      "provider": "Microsoft",
+      "size_gb": 8,
+      "vram_required": 14,
+      "parameters": "14B",
+      "quantization": "Q8",
+      "category": "general",
+      "tags": ["efficient", "reasoning", "microsoft"],
+      "description": "Microsoft's efficient mid-size model. Punches above its weight class with strong reasoning for its size. Good balance of quality and speed.",
+      "recommended": false,
+      "use_cases": [
+        "General assistance",
+        "Reasoning tasks",
+        "Fast inference",
+        "Resource efficiency"
+      ],
+      "ollama_pull": "ollama pull phi3:14b"
+    },
+    {
+      "name": "gemma2:27b",
+      "full_name": "Gemma 2 27B",
+      "provider": "Google",
+      "size_gb": 15,
+      "vram_required": 27,
+      "parameters": "27B",
+      "quantization": "Q8",
+      "category": "general",
+      "tags": ["google", "efficient", "safe"],
+      "description": "Google's Gemma 2 model. Well-balanced performance with strong safety guardrails. Good for general use.",
+      "recommended": false,
+      "use_cases": [
+        "General chat",
+        "Content generation",
+        "Safe AI applications",
+        "Educational use"
+      ],
+      "ollama_pull": "ollama pull gemma2:27b"
+    }
+  ],
+  "categories": {
+    "general": {
+      "name": "General Purpose",
+      "description": "Versatile models good for chat, reasoning, writing, and general assistance",
+      "icon": "chat",
+      "color": "#89b4fa"
+    },
+    "coding": {
+      "name": "Code Specialists",
+      "description": "Models optimized for programming, debugging, and code generation",
+      "icon": "code",
+      "color": "#a6e3a1"
+    },
+    "minimal": {
+      "name": "Lightweight & Fast",
+      "description": "Small, efficient models for quick tasks and testing",
+      "icon": "speed",
+      "color": "#f9e2af"
+    }
+  },
+  "vram_profiles": {
+    "96gb": {
+      "name": "Maximum Performance (96GB VRAM)",
+      "recommended_models": ["llama3.3:70b", "qwen2.5:72b", "deepseek-coder:33b"],
+      "description": "You can run the largest open-source models"
+    },
+    "64gb": {
+      "name": "High Performance (64GB VRAM)",
+      "recommended_models": ["mixtral:8x7b", "deepseek-coder:33b", "llama3.2:3b"],
+      "description": "Good selection of mid-to-large models"
+    },
+    "32gb": {
+      "name": "Standard (32GB VRAM)",
+      "recommended_models": ["qwen2.5-coder:32b", "gemma2:27b", "llama3.2:3b"],
+      "description": "Mid-size models work well"
+    },
+    "16gb": {
+      "name": "Basic (16GB VRAM)",
+      "recommended_models": ["phi3:14b", "llama3.2:3b", "llama3.2:1b"],
+      "description": "Smaller, efficient models recommended"
+    }
+  }
+}

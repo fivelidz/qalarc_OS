@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=qalarc_OS Welcome
+Comment=Welcome window for qalarc_OS first boot
+Exec=/home/qalarc/projects/qalarc-welcome/main.py
+Icon=system-help
+Terminal=false
+Categories=System;Utility;
+StartupNotify=true
+X-KDE-autostart-condition=qalarcWelcomeFirst
+X-KDE-autostart-phase=2
