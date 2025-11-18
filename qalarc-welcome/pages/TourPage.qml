@@ -189,51 +189,514 @@ Kirigami.ScrollablePage {
             }
         }
 
-        // Development Tools
+        // Complete Application Inventory
         Kirigami.Card {
             Layout.fillWidth: true
 
             header: RowLayout {
                 Kirigami.Icon {
-                    source: "code"
+                    source: "application-menu"
                     Layout.preferredWidth: 48
                     Layout.preferredHeight: 48
                     color: "#cba6f7"
                 }
 
                 Kirigami.Heading {
-                    text: "Development Environment"
+                    text: "Complete Application Inventory (130+ Apps)"
                     level: 2
                 }
             }
 
             contentItem: ColumnLayout {
                 Layout.margins: 16
-                spacing: 10
+                spacing: 15
 
                 Label {
-                    text: "Complete development stack pre-installed."
+                    text: "Your AI Workstation profile includes 130+ carefully selected applications. Click categories to expand."
                     wrapMode: Text.WordWrap
                     Layout.fillWidth: true
+                    font.bold: true
                 }
 
-                GridLayout {
-                    columns: 2
-                    columnSpacing: 20
-                    rowSpacing: 8
+                // Terminal & Shell
+                Kirigami.FormCard {
                     Layout.fillWidth: true
 
-                    Label { text: "Editors:"; font.bold: true }
-                    Label { text: "VSCode, Neovim, Vim" }
+                    Kirigami.AbstractFormDelegate {
+                        Layout.fillWidth: true
+                        contentItem: ColumnLayout {
+                            Label {
+                                text: "🖥️ Terminal & Shell"
+                                font.bold: true
+                                font.pointSize: 12
+                                color: "#89b4fa"
+                            }
+                            Label {
+                                text: "Ghostty (GPU-accelerated), Konsole (KDE terminal), tmux (session manager)"
+                                wrapMode: Text.WordWrap
+                                Layout.fillWidth: true
+                            }
+                        }
+                    }
+                }
 
-                    Label { text: "Languages:"; font.bold: true }
-                    Label { text: "Python, Node.js, Rust, Go" }
+                // Code Editors
+                Kirigami.FormCard {
+                    Layout.fillWidth: true
 
-                    Label { text: "Containers:"; font.bold: true }
-                    Label { text: "Docker, Podman" }
+                    Kirigami.AbstractFormDelegate {
+                        Layout.fillWidth: true
+                        contentItem: ColumnLayout {
+                            Label {
+                                text: "✏️ Code Editors"
+                                font.bold: true
+                                font.pointSize: 12
+                                color: "#89b4fa"
+                            }
+                            Label {
+                                text: "VSCode (FHS version), Neovim, Vim, Kate (KDE Advanced Text Editor)"
+                                wrapMode: Text.WordWrap
+                                Layout.fillWidth: true
+                            }
+                        }
+                    }
+                }
 
-                    Label { text: "Version Control:"; font.bold: true }
-                    Label { text: "Git, GitHub CLI (gh)" }
+                // Version Control
+                Kirigami.FormCard {
+                    Layout.fillWidth: true
+
+                    Kirigami.AbstractFormDelegate {
+                        Layout.fillWidth: true
+                        contentItem: ColumnLayout {
+                            Label {
+                                text: "🔀 Version Control"
+                                font.bold: true
+                                font.pointSize: 12
+                                color: "#a6e3a1"
+                            }
+                            Label {
+                                text: "Git, Git LFS, GitHub CLI (gh), Lazygit (terminal UI)"
+                                wrapMode: Text.WordWrap
+                                Layout.fillWidth: true
+                            }
+                        }
+                    }
+                }
+
+                // Build Tools & Compilers
+                Kirigami.FormCard {
+                    Layout.fillWidth: true
+
+                    Kirigami.AbstractFormDelegate {
+                        Layout.fillWidth: true
+                        contentItem: ColumnLayout {
+                            Label {
+                                text: "🔨 Build Tools & Compilers"
+                                font.bold: true
+                                font.pointSize: 12
+                                color: "#f9e2af"
+                            }
+                            Label {
+                                text: "GCC, Clang, CMake, GNU Make, Ninja"
+                                wrapMode: Text.WordWrap
+                                Layout.fillWidth: true
+                            }
+                        }
+                    }
+                }
+
+                // Programming Languages
+                Kirigami.FormCard {
+                    Layout.fillWidth: true
+
+                    Kirigami.AbstractFormDelegate {
+                        Layout.fillWidth: true
+                        contentItem: ColumnLayout {
+                            Label {
+                                text: "💻 Programming Languages"
+                                font.bold: true
+                                font.pointSize: 12
+                                color: "#cba6f7"
+                            }
+                            Label {
+                                text: "Python 3.12 (with pipx, virtualenv) • Node.js 22 (npm, pnpm, yarn) • Rust (cargo, rustfmt, clippy) • Go"
+                                wrapMode: Text.WordWrap
+                                Layout.fillWidth: true
+                            }
+                        }
+                    }
+                }
+
+                // Nix Development
+                Kirigami.FormCard {
+                    Layout.fillWidth: true
+
+                    Kirigami.AbstractFormDelegate {
+                        Layout.fillWidth: true
+                        contentItem: ColumnLayout {
+                            Label {
+                                text: "❄️ Nix Development"
+                                font.bold: true
+                                font.pointSize: 12
+                                color: "#89dceb"
+                            }
+                            Label {
+                                text: "nil (Nix LSP), nixpkgs-fmt, nixd (alternative LSP), alejandra (formatter)"
+                                wrapMode: Text.WordWrap
+                                Layout.fillWidth: true
+                            }
+                        }
+                    }
+                }
+
+                // Container Tools
+                Kirigami.FormCard {
+                    Layout.fillWidth: true
+
+                    Kirigami.AbstractFormDelegate {
+                        Layout.fillWidth: true
+                        contentItem: ColumnLayout {
+                            Label {
+                                text: "📦 Container Tools"
+                                font.bold: true
+                                font.pointSize: 12
+                                color: "#89b4fa"
+                            }
+                            Label {
+                                text: "Docker + docker-compose, Podman + podman-compose, Buildah, Skopeo, ctop, dive, lazydocker"
+                                wrapMode: Text.WordWrap
+                                Layout.fillWidth: true
+                            }
+                        }
+                    }
+                }
+
+                // AI/ML Stack
+                Kirigami.FormCard {
+                    Layout.fillWidth: true
+
+                    Kirigami.AbstractFormDelegate {
+                        Layout.fillWidth: true
+                        contentItem: ColumnLayout {
+                            Label {
+                                text: "🤖 AI/ML Stack"
+                                font.bold: true
+                                font.pointSize: 12
+                                color: "#a6e3a1"
+                            }
+                            Label {
+                                text: "LLM Servers: Ollama (with ROCm), oterm (Textual TUI), llama-cpp\n" +
+                                      "ML Libraries: PyTorch, Transformers, Textual, Rich\n" +
+                                      "GPU Compute: ROCm runtime, rocm-smi, rocminfo, clr (OpenCL/HIP), clinfo, Vulkan layers"
+                                wrapMode: Text.WordWrap
+                                Layout.fillWidth: true
+                            }
+                        }
+                    }
+                }
+
+                // Development Utilities
+                Kirigami.FormCard {
+                    Layout.fillWidth: true
+
+                    Kirigami.AbstractFormDelegate {
+                        Layout.fillWidth: true
+                        contentItem: ColumnLayout {
+                            Label {
+                                text: "🛠️ Development Utilities"
+                                font.bold: true
+                                font.pointSize: 12
+                                color: "#fab387"
+                            }
+                            Label {
+                                text: "direnv, jq (JSON), yq-go (YAML), ripgrep (rg), fd, bat (better cat), eza (better ls), fzf (fuzzy finder), zoxide (smart cd)"
+                                wrapMode: Text.WordWrap
+                                Layout.fillWidth: true
+                            }
+                        }
+                    }
+                }
+
+                // API & Database Tools
+                Kirigami.FormCard {
+                    Layout.fillWidth: true
+
+                    Kirigami.AbstractFormDelegate {
+                        Layout.fillWidth: true
+                        contentItem: ColumnLayout {
+                            Label {
+                                text: "🔌 API & Database Tools"
+                                font.bold: true
+                                font.pointSize: 12
+                                color: "#f38ba8"
+                            }
+                            Label {
+                                text: "API: Postman, Insomnia • Database: DBeaver (universal client)"
+                                wrapMode: Text.WordWrap
+                                Layout.fillWidth: true
+                            }
+                        }
+                    }
+                }
+
+                // Debugging & Profiling
+                Kirigami.FormCard {
+                    Layout.fillWidth: true
+
+                    Kirigami.AbstractFormDelegate {
+                        Layout.fillWidth: true
+                        contentItem: ColumnLayout {
+                            Label {
+                                text: "🐛 Debugging & Profiling"
+                                font.bold: true
+                                font.pointSize: 12
+                                color: "#eba0ac"
+                            }
+                            Label {
+                                text: "GDB (GNU Debugger), Valgrind (memory debugging), strace (system calls), ltrace (library calls), perf (performance analysis)"
+                                wrapMode: Text.WordWrap
+                                Layout.fillWidth: true
+                            }
+                        }
+                    }
+                }
+
+                // System Monitors
+                Kirigami.FormCard {
+                    Layout.fillWidth: true
+
+                    Kirigami.AbstractFormDelegate {
+                        Layout.fillWidth: true
+                        contentItem: ColumnLayout {
+                            Label {
+                                text: "📊 System Monitors"
+                                font.bold: true
+                                font.pointSize: 12
+                                color: "#94e2d5"
+                            }
+                            Label {
+                                text: "btop (modern), htop (interactive), nvtop (GPU), radeontop (AMD GPU), Conky (desktop overlay)"
+                                wrapMode: Text.WordWrap
+                                Layout.fillWidth: true
+                            }
+                        }
+                    }
+                }
+
+                // Hardware Info
+                Kirigami.FormCard {
+                    Layout.fillWidth: true
+
+                    Kirigami.AbstractFormDelegate {
+                        Layout.fillWidth: true
+                        contentItem: ColumnLayout {
+                            Label {
+                                text: "🔍 Hardware Info & Monitoring"
+                                font.bold: true
+                                font.pointSize: 12
+                                color: "#f5c2e7"
+                            }
+                            Label {
+                                text: "lshw, pciutils, usbutils, lm_sensors, smartmontools (S.M.A.R.T.), sysstat, iotop, iftop, nethogs"
+                                wrapMode: Text.WordWrap
+                                Layout.fillWidth: true
+                            }
+                        }
+                    }
+                }
+
+                // Browsers
+                Kirigami.FormCard {
+                    Layout.fillWidth: true
+
+                    Kirigami.AbstractFormDelegate {
+                        Layout.fillWidth: true
+                        contentItem: ColumnLayout {
+                            Label {
+                                text: "🌐 Web Browsers"
+                                font.bold: true
+                                font.pointSize: 12
+                                color: "#89b4fa"
+                            }
+                            Label {
+                                text: "Brave (PRIMARY - privacy-focused), Google Chrome (compatibility testing)"
+                                wrapMode: Text.WordWrap
+                                Layout.fillWidth: true
+                            }
+                        }
+                    }
+                }
+
+                // Media Players
+                Kirigami.FormCard {
+                    Layout.fillWidth: true
+
+                    Kirigami.AbstractFormDelegate {
+                        Layout.fillWidth: true
+                        contentItem: ColumnLayout {
+                            Label {
+                                text: "🎬 Media & Audio"
+                                font.bold: true
+                                font.pointSize: 12
+                                color: "#f9e2af"
+                            }
+                            Label {
+                                text: "Video: VLC, MPV • Audio: pavucontrol (PulseAudio/PipeWire), EasyEffects"
+                                wrapMode: Text.WordWrap
+                                Layout.fillWidth: true
+                            }
+                        }
+                    }
+                }
+
+                // Graphics & Image Editing
+                Kirigami.FormCard {
+                    Layout.fillWidth: true
+
+                    Kirigami.AbstractFormDelegate {
+                        Layout.fillWidth: true
+                        contentItem: ColumnLayout {
+                            Label {
+                                text: "🎨 Graphics & Image Editing"
+                                font.bold: true
+                                font.pointSize: 12
+                                color: "#cba6f7"
+                            }
+                            Label {
+                                text: "GIMP (raster editing), Inkscape (vector graphics), Krita (digital painting), Gwenview (viewer), feh (lightweight viewer)"
+                                wrapMode: Text.WordWrap
+                                Layout.fillWidth: true
+                            }
+                        }
+                    }
+                }
+
+                // Video Editing & Recording
+                Kirigami.FormCard {
+                    Layout.fillWidth: true
+
+                    Kirigami.AbstractFormDelegate {
+                        Layout.fillWidth: true
+                        contentItem: ColumnLayout {
+                            Label {
+                                text: "🎥 Video Editing & Recording"
+                                font.bold: true
+                                font.pointSize: 12
+                                color: "#f38ba8"
+                            }
+                            Label {
+                                text: "Kdenlive (video editor), OBS Studio (streaming/recording), SimpleScreenRecorder, Flameshot (screenshots), FFmpeg, Handbrake"
+                                wrapMode: Text.WordWrap
+                                Layout.fillWidth: true
+                            }
+                        }
+                    }
+                }
+
+                // Documents & Office
+                Kirigami.FormCard {
+                    Layout.fillWidth: true
+
+                    Kirigami.AbstractFormDelegate {
+                        Layout.fillWidth: true
+                        contentItem: ColumnLayout {
+                            Label {
+                                text: "📄 Documents & Office"
+                                font.bold: true
+                                font.pointSize: 12
+                                color: "#89dceb"
+                            }
+                            Label {
+                                text: "LibreOffice (complete suite - Qt6), Okular (PDF viewer), Evince (document viewer)"
+                                wrapMode: Text.WordWrap
+                                Layout.fillWidth: true
+                            }
+                        }
+                    }
+                }
+
+                // KDE Applications
+                Kirigami.FormCard {
+                    Layout.fillWidth: true
+
+                    Kirigami.AbstractFormDelegate {
+                        Layout.fillWidth: true
+                        contentItem: ColumnLayout {
+                            Label {
+                                text: "🔷 KDE Applications"
+                                font.bold: true
+                                font.pointSize: 12
+                                color: "#89b4fa"
+                            }
+                            Label {
+                                text: "Kate (text editor), Konsole (terminal), Dolphin (file manager), Ark (archives), Spectacle (screenshots), " +
+                                      "Filelight (disk usage), KWalletManager (passwords), KDE Connect (phone integration), Krohnkite (tiling WM)"
+                                wrapMode: Text.WordWrap
+                                Layout.fillWidth: true
+                            }
+                        }
+                    }
+                }
+
+                // Networking Tools
+                Kirigami.FormCard {
+                    Layout.fillWidth: true
+
+                    Kirigami.AbstractFormDelegate {
+                        Layout.fillWidth: true
+                        contentItem: ColumnLayout {
+                            Label {
+                                text: "🌍 Networking Tools"
+                                font.bold: true
+                                font.pointSize: 12
+                                color: "#a6e3a1"
+                            }
+                            Label {
+                                text: "curl, wget, nmap (scanner), iperf3 (benchmarking), mtr (diagnostics), traceroute, tcpdump, Wireshark (protocol analyzer)"
+                                wrapMode: Text.WordWrap
+                                Layout.fillWidth: true
+                            }
+                        }
+                    }
+                }
+
+                // Documentation
+                Kirigami.FormCard {
+                    Layout.fillWidth: true
+
+                    Kirigami.AbstractFormDelegate {
+                        Layout.fillWidth: true
+                        contentItem: ColumnLayout {
+                            Label {
+                                text: "📚 Documentation"
+                                font.bold: true
+                                font.pointSize: 12
+                                color: "#fab387"
+                            }
+                            Label {
+                                text: "man-pages (Linux manuals), man-pages-posix (POSIX manuals), tldr (simplified man pages)"
+                                wrapMode: Text.WordWrap
+                                Layout.fillWidth: true
+                            }
+                        }
+                    }
+                }
+
+                // Total count label
+                Label {
+                    text: "Total: 130+ applications across 20+ categories"
+                    font.italic: true
+                    color: "#a6e3a1"
+                    Layout.alignment: Qt.AlignHCenter
+                    Layout.topMargin: 10
+                }
+
+                Button {
+                    text: "View Full Inventory"
+                    icon.name: "document"
+                    Layout.alignment: Qt.AlignHCenter
+                    onClicked: Qt.openUrlExternally("file:///home/" + systemBackend.getUsername() + "/projects/APP-INVENTORY.md")
                 }
             }
         }
