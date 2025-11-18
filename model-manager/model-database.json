@@ -168,6 +168,72 @@
       "preinstalled": true
     },
     {
+      "name": "tinyllama",
+      "full_name": "TinyLlama 1.1B",
+      "provider": "TinyLlama",
+      "size_gb": 0.64,
+      "vram_required": 1,
+      "parameters": "1.1B",
+      "quantization": "Full",
+      "category": "writing",
+      "tags": ["ultra-fast", "writing", "autocomplete", "instant"],
+      "description": "Extremely fast 1.1B parameter model optimized for writing tasks. Ideal for real-time autocomplete, quick responses, and instant text generation. ~250 tokens/sec on CPU.",
+      "recommended": true,
+      "use_cases": [
+        "Real-time code autocomplete",
+        "Instant chat responses",
+        "Email suggestions",
+        "Quick writing assistance",
+        "Low-latency applications"
+      ],
+      "ollama_pull": "ollama pull tinyllama",
+      "speed_tokens_per_sec": 250
+    },
+    {
+      "name": "qwen2.5:0.5b",
+      "full_name": "Qwen 2.5 0.5B",
+      "provider": "Alibaba",
+      "size_gb": 0.4,
+      "vram_required": 0.5,
+      "parameters": "0.5B",
+      "quantization": "Full",
+      "category": "writing",
+      "tags": ["ultra-fast", "writing", "multilingual", "instant"],
+      "description": "Ultra-fast half-billion parameter model. Fastest in the lineup with ~400 tokens/sec on CPU. Excellent for writing assistance, autocomplete, and instant responses. Multilingual support.",
+      "recommended": true,
+      "use_cases": [
+        "Ultra-fast writing assistant",
+        "Instant autocomplete",
+        "Email composition",
+        "Document proofreading",
+        "Multilingual quick tasks"
+      ],
+      "ollama_pull": "ollama pull qwen2.5:0.5b",
+      "speed_tokens_per_sec": 400
+    },
+    {
+      "name": "stablelm2:1.6b",
+      "full_name": "Stable LM 2 1.6B",
+      "provider": "Stability AI",
+      "size_gb": 0.98,
+      "vram_required": 1.6,
+      "parameters": "1.6B",
+      "quantization": "Full",
+      "category": "writing",
+      "tags": ["fast", "chat", "creative-writing"],
+      "description": "Fast 1.6B model balanced between speed and quality. Good for chat, creative writing, and general assistance. ~180 tokens/sec on CPU.",
+      "recommended": false,
+      "use_cases": [
+        "Quick chat responses",
+        "Creative writing",
+        "Story generation",
+        "General assistance",
+        "Fast inference"
+      ],
+      "ollama_pull": "ollama pull stablelm2:1.6b",
+      "speed_tokens_per_sec": 180
+    },
+    {
       "name": "qwen2.5-coder:32b",
       "full_name": "Qwen 2.5 Coder 32B",
       "provider": "Alibaba",
@@ -241,6 +307,12 @@
       "icon": "code",
       "color": "#a6e3a1"
     },
+    "writing": {
+      "name": "Fast Writing Models",
+      "description": "Ultra-fast models optimized for writing, autocomplete, and instant responses",
+      "icon": "edit",
+      "color": "#fab387"
+    },
     "minimal": {
       "name": "Lightweight & Fast",
       "description": "Small, efficient models for quick tasks and testing",
@@ -249,25 +321,31 @@
     }
   },
   "vram_profiles": {
+    "32gb": {
+      "name": "Recommended (32GB VRAM / 94GB System RAM)",
+      "recommended_models": ["qwen2.5-coder:32b", "gemma2:27b", "phi3:14b", "tinyllama", "qwen2.5:0.5b"],
+      "description": "Optimal balance - excellent 30B-class models + 94GB RAM for development",
+      "system_ram": "94GB",
+      "note": "Best configuration for AI development workstation. Can run 70B models on CPU if needed."
+    },
     "96gb": {
-      "name": "Maximum Performance (96GB VRAM)",
+      "name": "Maximum AI (96GB VRAM / 32GB System RAM)",
       "recommended_models": ["llama3.3:70b", "qwen2.5:72b", "deepseek-coder:33b"],
-      "description": "You can run the largest open-source models"
+      "description": "Run largest open-source models on GPU",
+      "system_ram": "32GB",
+      "note": "Use temporarily for 70B+ model inference. Limited system RAM for other applications."
     },
     "64gb": {
-      "name": "High Performance (64GB VRAM)",
-      "recommended_models": ["mixtral:8x7b", "deepseek-coder:33b", "llama3.2:3b"],
-      "description": "Good selection of mid-to-large models"
-    },
-    "32gb": {
-      "name": "Standard (32GB VRAM)",
-      "recommended_models": ["qwen2.5-coder:32b", "gemma2:27b", "llama3.2:3b"],
-      "description": "Mid-size models work well"
+      "name": "High Performance (64GB VRAM / 64GB System RAM)",
+      "recommended_models": ["mixtral:8x7b", "deepseek-coder:33b", "gemma2:27b"],
+      "description": "Balanced approach for mid-to-large models",
+      "system_ram": "64GB"
     },
     "16gb": {
-      "name": "Basic (16GB VRAM)",
-      "recommended_models": ["phi3:14b", "llama3.2:3b", "llama3.2:1b"],
-      "description": "Smaller, efficient models recommended"
+      "name": "Basic (16GB VRAM / 112GB System RAM)",
+      "recommended_models": ["phi3:14b", "llama3.2:3b", "tinyllama", "qwen2.5:0.5b"],
+      "description": "Smaller efficient models, maximum system RAM",
+      "system_ram": "112GB"
     }
   }
 }
