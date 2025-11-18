@@ -557,7 +557,140 @@ qalarc-autocomplete model tinyllama # Set autocomplete model
 
 ---
 
-**Last Updated**: 2025-11-17
+## 🍎 MacOS-Style Theme Preset
+
+**Goal**: Provide a one-click theme preset that transforms KDE Plasma to look and feel like macOS
+
+### Visual Components
+
+1. **Global Menu Bar** (Top Panel)
+   - Application menu in top panel (like macOS)
+   - KDE Plasma Global Menu widget
+   - Clock centered in top panel
+   - System tray on right
+
+2. **Dock** (Bottom Panel)
+   - Latte Dock configured as macOS-style dock
+   - Centered at bottom
+   - Icons enlarge on hover (parabolic effect)
+   - Minimize to dock
+   - Trash in dock
+
+3. **Window Decorations**
+   - Window buttons on LEFT side (close, minimize, maximize)
+   - Traffic light style buttons (red, yellow, green)
+   - Rounded window corners
+   - Drop shadows
+
+4. **Icons & Theme**
+   - WhiteSur or McMojave icon theme
+   - WhiteSur GTK theme
+   - WhiteSur Plasma theme
+   - San Francisco-style fonts (or Inter/SF Pro alternatives)
+
+5. **File Manager**
+   - Dolphin configured with sidebar like Finder
+   - Column view option
+   - Quick Look preview (Space key)
+
+### Implementation
+
+**Theme Package Contents**:
+```
+~/.local/share/qalarc-themes/macos/
+├── plasma-theme/           # Plasma desktop theme
+├── color-scheme/           # Color scheme files
+├── window-decoration/      # Window button positions
+├── latte-dock-config/      # Dock configuration
+├── icons/                  # Icon theme
+├── fonts/                  # Font configuration
+├── konsole-profile/        # Terminal theme
+├── dolphin-config/         # File manager layout
+└── apply-theme.sh          # One-click apply script
+```
+
+**KDE Components to Configure**:
+```nix
+# In NixOS configuration
+environment.systemPackages = with pkgs; [
+  # Theme packages
+  whitesur-gtk-theme
+  whitesur-icon-theme
+
+  # Dock
+  latte-dock
+
+  # Fonts (macOS-like)
+  inter
+  roboto
+
+  # Tools
+  kvantum              # Advanced theme engine
+  plasma5Packages.lightly  # Window decoration
+];
+
+# Plasma settings
+programs.plasma = {
+  enable = true;
+  overrideConfig = true;
+
+  # Global menu
+  panels = [{
+    location = "top";
+    height = 28;
+    widgets = [
+      "org.kde.plasma.appmenu"
+      "org.kde.plasma.panelspacer"
+      "org.kde.plasma.digitalclock"
+      "org.kde.plasma.panelspacer"
+      "org.kde.plasma.systemtray"
+    ];
+  }];
+};
+```
+
+### Apply Command
+
+```bash
+# Apply macOS theme preset
+qalarc-theme apply macos
+
+# Preview theme before applying
+qalarc-theme preview macos
+
+# Revert to default qalarc theme
+qalarc-theme apply default
+
+# List available themes
+qalarc-theme list
+```
+
+### Additional Presets (Future)
+
+1. **macOS Light** - Light mode version
+2. **macOS Dark** - Dark mode (default)
+3. **Windows 11** - Windows-style layout
+4. **Ubuntu** - Ubuntu/GNOME style
+5. **qalarc Default** - Custom Catppuccin-based theme
+
+### Benefits
+
+- ✅ Familiar interface for macOS users
+- ✅ Easier transition from macOS to Linux
+- ✅ Professional appearance
+- ✅ One-click application
+- ✅ Easy to revert
+
+### References
+
+- WhiteSur Theme: https://github.com/vinceliuice/WhiteSur-gtk-theme
+- McMojave Theme: https://github.com/vinceliuice/McMojave-kde
+- Latte Dock: https://github.com/KDE/latte-dock
+- Global Menu: KDE Plasma built-in
+
+---
+
+**Last Updated**: 2025-11-18
 **Status**: Planning / Research
 **Next Review**: Phase 8 completion + 2 weeks
 
@@ -566,3 +699,4 @@ qalarc-autocomplete model tinyllama # Set autocomplete model
 - Whisper: https://github.com/openai/whisper
 - Piper TTS: https://github.com/rhasspy/piper
 - PyGaze: http://www.pygaze.org/
+- WhiteSur Theme: https://github.com/vinceliuice/WhiteSur-gtk-theme
