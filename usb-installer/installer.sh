@@ -28,6 +28,8 @@ HOSTNAME="qalarc-workstation"
 USERNAME="qalarc"
 DISK_DEVICE=""
 VRAM_DETECTED=0
+IS_PORTABLE="false"
+PORTABLE_RECOMMENDED="false"
 
 # ============================================================================
 # Utility Functions
@@ -247,6 +249,57 @@ get_system_info() {
 }
 
 # ============================================================================
+# Portable Installation Check
+# ============================================================================
+
+check_portable_installation() {
+    print_header
+    echo -e "${CYAN}=== Portable Installation Detection ===${NC}"
+    echo ""
+
+    # Check if selected disk is removable
+    DISK_NAME=$(basename "$DISK_DEVICE")
+
+    # Run portable check
+    if [ -f "$HARDWARE_SCRIPT" ]; then
+        # Source the check_if_portable function
+        source "$HARDWARE_SCRIPT"
+        PORTABLE_CHECK=$(check_if_portable "$DISK_NAME")
+        PORTABLE_STATUS=$(echo "$PORTABLE_CHECK" | cut -d':' -f1)
+        PORTABLE_REASON=$(echo "$PORTABLE_CHECK" | cut -d':' -f2-)
+
+        echo -e "${BLUE}Target disk:${NC} $DISK_DEVICE"
+        echo -e "${BLUE}Analysis:${NC} $PORTABLE_REASON"
+        echo ""
+
+        if [ "$PORTABLE_STATUS" = "true" ]; then
+            PORTABLE_RECOMMENDED="true"
+            log_success "This drive is suitable for portable installation!"
+            echo ""
+            echo "Portable installation allows qalarc_OS to boot on different computers"
+            echo "from this external drive."
+            echo ""
+            read -p "Configure as portable installation? [Y/n]: " portable_choice
+            if [[ ! "$portable_choice" =~ ^[Nn]$ ]]; then
+                IS_PORTABLE="true"
+                log_success "Portable installation mode enabled"
+            fi
+        elif [ "$PORTABLE_STATUS" = "maybe" ]; then
+            log_warn "Drive has limited capacity for portable use"
+            read -p "Still configure as portable? [y/N]: " portable_choice
+            if [[ "$portable_choice" =~ ^[Yy]$ ]]; then
+                IS_PORTABLE="true"
+            fi
+        else
+            log_info "Fixed disk detected - standard installation"
+        fi
+    fi
+
+    echo ""
+    read -p "Press Enter to continue..."
+}
+
+# ============================================================================
 # Installation Summary
 # ============================================================================
 
@@ -258,6 +311,12 @@ show_summary() {
     echo -e "${YELLOW}Hostname:${NC}   $HOSTNAME"
     echo -e "${YELLOW}Username:${NC}   $USERNAME"
     echo -e "${YELLOW}Disk:${NC}       $DISK_DEVICE"
+
+    if [ "$IS_PORTABLE" = "true" ]; then
+        echo -e "${YELLOW}Type:${NC}       ${GREEN}Portable Installation${NC} (boots on different hardware)"
+    else
+        echo -e "${YELLOW}Type:${NC}       Standard Installation (optimized for this hardware)"
+    fi
 
     if [ "$SELECTED_PROFILE" = "custom" ]; then
         echo -e "${YELLOW}Modules:${NC}    ${SELECTED_MODULES[*]}"
@@ -298,6 +357,52 @@ generate_configuration() {
     # Replace placeholders
     sed -i "s/{{HOSTNAME}}/$HOSTNAME/g" "$CONFIG_DIR/configuration.nix"
     sed -i "s/{{USERNAME}}/$USERNAME/g" "$CONFIG_DIR/configuration.nix"
+
+    # Add portable installation configuration if needed
+    if [ "$IS_PORTABLE" = "true" ]; then
+        log_info "Configuring for portable installation..."
+
+        # Add portable-specific settings to configuration
+        cat >> "$CONFIG_DIR/configuration.nix.portable" << 'EOF'
+
+# ═══════════════════════════════════════════════════════════
+# PORTABLE INSTALLATION CONFIGURATION
+# ═══════════════════════════════════════════════════════════
+
+# Use UUIDs instead of device names for stability across hardware
+boot.loader.grub.devices = [ "nodev" ];
+boot.loader.efi.efiSysMountPoint = "/boot/efi";
+
+# Generic kernel parameters (no hardware-specific optimizations)
+boot.kernelParams = [
+  "quiet"
+  "splash"
+];
+
+# Load common drivers
+boot.initrd.availableKernelModules = [
+  # USB
+  "uas" "usb_storage" "usbhid"
+  # Common storage controllers
+  "ahci" "xhci_pci" "nvme" "sd_mod"
+  # AMD graphics (fallback)
+  "amdgpu" "radeon"
+];
+
+# Network detection (support various NICs)
+networking.useDHCP = lib.mkDefault true;
+
+# Don't use hardware-specific optimizations
+nixpkgs.hostPlatform = "x86_64-linux";  # Generic, not native
+
+EOF
+
+        # Merge portable config
+        cat "$CONFIG_DIR/configuration.nix.portable" >> "$CONFIG_DIR/configuration.nix"
+        rm "$CONFIG_DIR/configuration.nix.portable"
+
+        log_success "Portable configuration added"
+    fi
 
     # Add custom modules if selected
     if [ "$SELECTED_PROFILE" = "custom" ] && [ ${#SELECTED_MODULES[@]} -gt 0 ]; then
@@ -422,7 +527,10 @@ main() {
     # Step 4: Get system configuration
     get_system_info
 
-    # Step 5: Show summary
+    # Step 5: Check portable installation
+    check_portable_installation
+
+    # Step 6: Show summary
     show_summary
 
     # Step 6: Generate configuration

@@ -156,6 +156,90 @@ detect_storage() {
 }
 
 # ============================================================================
+# Removable Drive Detection
+# ============================================================================
+
+detect_removable_drives() {
+    # Detect USB and external drives
+    REMOVABLE_DRIVES=()
+
+    for device in /sys/block/*/removable; do
+        DEV_NAME=$(basename $(dirname "$device"))
+        IS_REMOVABLE=$(cat "$device" 2>/dev/null || echo "0")
+
+        if [ "$IS_REMOVABLE" = "1" ]; then
+            # Get device info
+            SIZE=$(lsblk -b -d -n -o SIZE /dev/$DEV_NAME 2>/dev/null)
+            SIZE_GB=$(echo "scale=0; $SIZE / 1024 / 1024 / 1024" | bc 2>/dev/null || echo "0")
+
+            # Check if USB
+            IS_USB="false"
+            if [ -e "/sys/block/$DEV_NAME/device/../../../../subsystem" ]; then
+                SUBSYS=$(readlink -f "/sys/block/$DEV_NAME/device/../../../../subsystem" 2>/dev/null)
+                if echo "$SUBSYS" | grep -q "usb"; then
+                    IS_USB="true"
+                fi
+            fi
+
+            REMOVABLE_DRIVES+=("$DEV_NAME:${SIZE_GB}GB:USB=$IS_USB")
+        fi
+    done
+
+    # Store as comma-separated string
+    if [ ${#REMOVABLE_DRIVES[@]} -gt 0 ]; then
+        HARDWARE[removable_drives]="${REMOVABLE_DRIVES[*]}"
+        HARDWARE[has_removable]="true"
+    else
+        HARDWARE[removable_drives]="none"
+        HARDWARE[has_removable]="false"
+    fi
+}
+
+# ============================================================================
+# Portable Installation Detection
+# ============================================================================
+
+check_if_portable() {
+    # Check if a specific device is suitable for portable installation
+    # Args: device name (e.g., "sda", "sdb")
+    local device=$1
+
+    # Removable check
+    IS_REMOVABLE=$(cat "/sys/block/$device/removable" 2>/dev/null || echo "0")
+
+    # USB check
+    IS_USB="false"
+    if [ -e "/sys/block/$device/device/../../../../subsystem" ]; then
+        SUBSYS=$(readlink -f "/sys/block/$device/device/../../../../subsystem" 2>/dev/null)
+        if echo "$SUBSYS" | grep -q "usb"; then
+            IS_USB="true"
+        fi
+    fi
+
+    # Size check (recommend minimum 64GB for portable)
+    SIZE_BYTES=$(lsblk -b -d -n -o SIZE /dev/$device 2>/dev/null || echo "0")
+    SIZE_GB=$(echo "scale=0; $SIZE_BYTES / 1024 / 1024 / 1024" | bc 2>/dev/null || echo "0")
+
+    PORTABLE_SUITABLE="false"
+    PORTABLE_REASON=""
+
+    if [ "$IS_REMOVABLE" = "1" ] || [ "$IS_USB" = "true" ]; then
+        if [ "$SIZE_GB" -ge 64 ]; then
+            PORTABLE_SUITABLE="true"
+            PORTABLE_REASON="Removable drive with sufficient capacity (${SIZE_GB}GB)"
+        else
+            PORTABLE_SUITABLE="maybe"
+            PORTABLE_REASON="Removable but small capacity (${SIZE_GB}GB < 64GB recommended)"
+        fi
+    else
+        PORTABLE_SUITABLE="no"
+        PORTABLE_REASON="Fixed/internal drive - not suitable for portable installation"
+    fi
+
+    echo "$PORTABLE_SUITABLE:$PORTABLE_REASON"
+}
+
+# ============================================================================
 # System Compatibility Check
 # ============================================================================
 
@@ -267,6 +351,7 @@ main() {
     detect_ram
     detect_gpu
     detect_storage
+    detect_removable_drives
     check_compatibility
 
     # Output results

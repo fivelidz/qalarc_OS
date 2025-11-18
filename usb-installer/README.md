@@ -297,6 +297,198 @@ qemu-system-x86_64 \
 
 ---
 
+## Portable Installation
+
+### What is a Portable Installation?
+
+A **portable installation** allows qalarc_OS to boot from an external drive (USB, external SSD) on different computers. This is useful for:
+
+- **Testing** qalarc_OS without modifying your main system
+- **Mobile workstation** - carry your complete AI environment between machines
+- **Demonstrations** - show qalarc_OS on different hardware
+- **Development** - test configurations across multiple systems
+
+### Requirements
+
+**Hardware**:
+- External drive (USB 3.0+, external NVMe/SSD recommended)
+- Minimum 64GB capacity (128GB+ recommended)
+- Fast drive for good performance (NVMe > SSD > USB 3.0 > USB 2.0)
+
+**Target Computers**:
+- AMD CPU (preferably Ryzen AI MAX+)
+- AMD GPU for ROCm acceleration
+- 32GB+ RAM
+- UEFI boot support
+- USB boot enabled in BIOS
+
+### How It Works
+
+The installer **automatically detects** removable drives and offers portable installation:
+
+```bash
+=== Portable Installation Detection ===
+
+Target disk: /dev/sdb
+Analysis: Removable drive with sufficient capacity (256GB)
+
+✓ This drive is suitable for portable installation!
+
+Portable installation allows qalarc_OS to boot on different computers
+from this external drive.
+
+Configure as portable installation? [Y/n]:
+```
+
+### Portable vs. Standard Installation
+
+| Feature | Standard | Portable |
+|---------|----------|----------|
+| **Performance** | Optimized for specific hardware | Generic, broader compatibility |
+| **Hardware Detection** | Uses specific device names | Uses UUIDs for stability |
+| **Kernel** | Hardware-specific optimizations | Generic x86_64 |
+| **Drivers** | Minimal (specific hardware) | Comprehensive (various hardware) |
+| **Portability** | Fixed to one machine | Boots on multiple machines |
+| **VRAM Config** | Can use BIOS-specific settings | Must detect on each boot |
+
+### Installation Steps
+
+1. **Plug in External Drive** (64GB+ recommended)
+
+2. **Boot Installation Media**
+
+3. **Run Installer**:
+   ```bash
+   qalarc-install
+   ```
+
+4. **Select Profile** (AI Workstation recommended)
+
+5. **Choose External Drive**:
+   ```
+   Available disks:
+   sda  931.5G  disk    # Internal drive (skip this)
+   sdb  256G    disk    # External USB/SSD (select this)
+   ```
+
+6. **Confirm Portable Installation**:
+   - Installer auto-detects removable drive
+   - Prompts to configure as portable
+   - Press Y to enable
+
+7. **Complete Installation**
+
+### Using Portable qalarc_OS
+
+#### On New Computer
+
+1. **Plug in External Drive**
+
+2. **Enter BIOS** (F2/Del during boot)
+
+3. **Set Boot Order**:
+   - Move USB/External drive to first position
+   - Or use Boot Menu (F12) to select drive
+
+4. **Boot qalarc_OS**:
+   - System will boot from external drive
+   - Hardware detection runs automatically
+   - AI tools available after boot
+
+#### VRAM Configuration
+
+**Important**: VRAM allocation is BIOS-specific:
+
+- **First Boot on New Computer**: May have limited VRAM
+- **To Enable 96GB VRAM**:
+  1. Follow BIOS guide on that specific computer
+  2. Set UMA Frame Buffer to 96GB
+  3. Reboot
+
+- **On Each Computer**: VRAM settings are per-machine
+- **Portable Mode**: Detects available VRAM automatically
+
+#### Performance Considerations
+
+**Fast External Drives** (NVMe/SSD):
+- Boot time: ~20-40 seconds
+- Performance: 80-95% of internal drive
+- Recommended for daily use
+
+**USB 3.0 Drives**:
+- Boot time: ~40-90 seconds
+- Performance: 50-80% of internal drive
+- Acceptable for testing/demos
+
+**USB 2.0 Drives**:
+- Boot time: 2-5 minutes
+- Performance: 20-40% of internal drive
+- Not recommended
+
+### Limitations
+
+**Not Recommended For**:
+- ❌ Large model training (slow I/O)
+- ❌ Intensive database workloads
+- ❌ Primary production system
+
+**Works Well For**:
+- ✅ AI inference (models loaded to RAM)
+- ✅ Development and testing
+- ✅ Demonstrations
+- ✅ Mobile workstation
+
+### Troubleshooting
+
+#### Won't Boot on New Computer
+
+**Issue**: External drive not recognized
+
+**Solutions**:
+- Check BIOS boot order
+- Enable USB boot in BIOS
+- Disable Secure Boot (temporarily)
+- Try different USB port (USB 3.0 ports)
+
+#### Limited VRAM on New Computer
+
+**Issue**: Only 2GB VRAM detected instead of 96GB
+
+**Solution**: Configure BIOS on that specific computer:
+```bash
+# After boot, check current VRAM
+rocm-smi --showmeminfo vram
+
+# If low, follow BIOS guide to set 96GB
+cat ~/Documents/qalarc-os-setup/BIOS-SETUP-GUIDE.md
+```
+
+#### Slow Performance
+
+**Issue**: System feels sluggish
+
+**Causes & Solutions**:
+- **USB 2.0 Drive**: Upgrade to USB 3.0+ or SSD
+- **Fragmented Drive**: Reinstall on fresh drive
+- **Slow Computer**: Check host CPU/RAM specs
+- **Background I/O**: Load models to RAM first
+
+#### Hardware Not Detected
+
+**Issue**: GPU or devices not recognized
+
+**Solution**: Portable mode includes fallback drivers, but some exotic hardware may need manual configuration:
+
+```bash
+# Check what was detected
+lspci | grep -i vga
+rocminfo
+
+# May need to rebuild with specific drivers
+```
+
+---
+
 ## VRAM Configuration
 
 ### Why 96GB VRAM Matters
