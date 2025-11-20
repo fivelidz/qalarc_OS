@@ -89,7 +89,23 @@
           ];
         };
 
-        # Add more hosts as needed
+        # Alias for current hostname
+        gmktec-minimal = nixpkgs.lib.nixosSystem {
+          inherit system;
+          modules = [
+            ./hosts/gmktec-01-minimal/configuration.nix
+            ./hosts/gmktec-01-minimal/hardware-configuration.nix
+          ];
+        };
+
+        # Portable external drive - self-contained bootable OS with LUKS
+        portable-external = nixpkgs.lib.nixosSystem {
+          inherit system;
+          modules = [
+            ./hosts/portable-external/configuration.nix
+            ./hosts/portable-external/hardware-configuration.nix
+          ];
+        };
 
         # Custom installer ISO with qalarc_OS pre-loaded
         installer = nixpkgs.lib.nixosSystem {

@@ -35,7 +35,7 @@
   users.users.qalarc = {
     isNormalUser = true;
     description = "QALARC User";
-    extraGroups = [ "wheel" "networkmanager" ];
+    extraGroups = [ "wheel" "networkmanager" "docker" "video" "render" ];
     initialPassword = "qalarc";  # Change after first login
   };
 
@@ -47,7 +47,35 @@
     curl
     firefox
     nodejs_22
+    ghostty
+    tmux
+    btop
+    jq
   ];
+
+  # Ollama AI service with GPU acceleration
+  services.ollama = {
+    enable = true;
+    acceleration = "rocm";  # AMD GPU acceleration
+
+    # CRITICAL: Pass GPU environment to systemd service
+    environmentVariables = {
+      # Override gfx1151 (RDNA4) to appear as gfx1100 (RDNA3)
+      # gfx1100 = 11.0.0 (not 10.3.0 which is gfx1030)
+      HSA_OVERRIDE_GFX_VERSION = "11.0.0";
+      ROCR_VISIBLE_DEVICES = "0";  # Use first GPU
+    };
+  };
+
+  # Environment variables for ROCm
+  environment.variables = {
+    HSA_OVERRIDE_GFX_VERSION = "11.0.0";
+    ROCR_VISIBLE_DEVICES = "0";
+    PYTORCH_ROCM_ARCH = "gfx1100";
+  };
+
+  # Docker for AI containers
+  virtualisation.docker.enable = true;
 
   # Enable flakes
   nix.settings.experimental-features = [ "nix-command" "flakes" ];

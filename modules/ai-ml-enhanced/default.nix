@@ -97,6 +97,14 @@
     acceleration = "rocm";  # AMD GPU acceleration
     # Models stored in /var/lib/ollama or custom location
     # Override with: home = "/local-llms/ollama";
+
+    # CRITICAL: Pass GPU environment to systemd service
+    environmentVariables = {
+      # Override gfx1151 (RDNA4) to appear as gfx1100 (RDNA3)
+      # Format: MAJOR.MINOR.STEPPING → 10.3.0 for gfx1100
+      HSA_OVERRIDE_GFX_VERSION = "10.3.0";
+      ROCR_VISIBLE_DEVICES = "0";           # Use first GPU
+    };
   };
 
   # ═══════════════════════════════════════════════════════════
@@ -107,9 +115,9 @@
     # ROCm device selection
     ROCR_VISIBLE_DEVICES = "0";  # Use first GPU (Radeon 8060S)
 
-    # HIP/ROCm configuration for gfx1151
-    HSA_OVERRIDE_GFX_VERSION = "11.5.1";
-    PYTORCH_ROCM_ARCH = "gfx1151";
+    # HIP/ROCm configuration for gfx1151 → override to gfx1100 (RDNA3)
+    HSA_OVERRIDE_GFX_VERSION = "10.3.0";
+    PYTORCH_ROCM_ARCH = "gfx1100";  # For PyTorch ROCm compatibility
 
     # Ollama configuration
     OLLAMA_HOST = "127.0.0.1:11434";  # Local only by default
