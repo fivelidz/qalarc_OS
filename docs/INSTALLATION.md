@@ -148,7 +148,7 @@ o     # Create new GPT partition table
 n     # New partition
 1     # Partition number
       # Press Enter (default start)
-+512M # 512MB for EFI
++2G   # 2GB for EFI (room for multiple kernels)
 ef00  # EFI System partition
 
 n     # New partition

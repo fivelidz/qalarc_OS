@@ -8,6 +8,30 @@
     snapper
     snapper-gui  # GUI for browsing snapshots
     # grub-btrfs  # TODO: Not in nixpkgs 25.05 stable yet - add when available
+
+    # Manual snapshot script for CLI AI assistants and keyboard shortcuts
+    (pkgs.writeShellScriptBin "qalarc-snapshot" ''
+      #!/bin/sh
+      TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
+      DESCRIPTION="''${1:-manual-snapshot}"
+
+      # Create snapshot
+      ${pkgs.snapper}/bin/snapper --config root create \
+        --description "$DESCRIPTION-$TIMESTAMP" \
+        --cleanup-algorithm number
+
+      # Show notification (if in GUI)
+      if [ -n "$DISPLAY" ]; then
+        ${pkgs.libnotify}/bin/notify-send "Snapshot Created" \
+          "System snapshot created: $DESCRIPTION-$TIMESTAMP"
+      fi
+
+      # Export snapshot info as JSON for AI assistants
+      ${pkgs.snapper}/bin/snapper --config root list --columns number,date,description --json \
+        > /var/lib/qalarc/snapshots.json
+
+      echo "Snapshot created: $DESCRIPTION-$TIMESTAMP"
+    '')
   ];
 
   # Snapper configurations for different subvolumes
@@ -114,36 +138,6 @@
   # Ensure snapshot directory exists
   systemd.tmpfiles.rules = [
     "d /.snapshots 0750 root root -"
-  ];
-
-  # KDE keyboard shortcut for manual snapshots
-  # This will be set up via KDE's custom shortcuts settings
-  # The script creates a snapshot with a timestamp and shows a notification
-  environment.systemPackages = with pkgs; [
-    (pkgs.writeShellScriptBin "qalarc-snapshot" ''
-      #!/bin/sh
-      # Manual snapshot creation script for CLI AI assistants and keyboard shortcuts
-
-      TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
-      DESCRIPTION="''${1:-manual-snapshot}"
-
-      # Create snapshot
-      ${pkgs.snapper}/bin/snapper --config root create \
-        --description "$DESCRIPTION-$TIMESTAMP" \
-        --cleanup-algorithm number
-
-      # Show notification (if in GUI)
-      if [ -n "$DISPLAY" ]; then
-        ${pkgs.libnotify}/bin/notify-send "Snapshot Created" \
-          "System snapshot created: $DESCRIPTION-$TIMESTAMP"
-      fi
-
-      # Export snapshot info as JSON for AI assistants
-      ${pkgs.snapper}/bin/snapper --config root list --columns number,date,description --json \
-        > /var/lib/qalarc/snapshots.json
-
-      echo "Snapshot created: $DESCRIPTION-$TIMESTAMP"
-    '')
   ];
 
   # CLI AI assistant interface:

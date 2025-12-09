@@ -55,7 +55,7 @@ gdisk /dev/nvme0n1
 ```
 
 **Recommended layout:**
-- `/dev/nvme0n1p1`: 512MB (EFI System)
+- `/dev/nvme0n1p1`: 2GB (EFI System - room for multiple kernels)
 - `/dev/nvme0n1p2`: Remaining ~2TB (Linux filesystem - will be LUKS + BTRFS)
 
 **gdisk commands:**
@@ -63,7 +63,7 @@ gdisk /dev/nvme0n1
 o     # Create new GPT partition table
 n     # New partition 1 (EFI)
       # First sector: default (press Enter)
-      # Last sector: +512M
+      # Last sector: +2G
       # Type: ef00 (EFI)
 
 n     # New partition 2 (root)

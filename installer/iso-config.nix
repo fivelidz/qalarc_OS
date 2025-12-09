@@ -48,87 +48,14 @@
     # For AI/ROCm setup
     rocmPackages.rocm-smi
     rocmPackages.rocminfo
-  ];
 
-  # Enable NetworkManager for easier WiFi setup
-  networking.networkmanager.enable = true;
-  networking.wireless.enable = lib.mkForce false; # Disable wpa_supplicant
+    # Quick install launcher
+    (pkgs.writeShellScriptBin "qalarc-install" ''
+      #!/bin/sh
+      exec /etc/qalarc_OS/scripts/quick-install.sh "$@"
+    '')
 
-  # Enable SSH for remote installation (optional)
-  services.openssh = {
-    enable = true;
-    settings.PermitRootLogin = "yes";
-  };
-
-  # Set a default password for live system (change this!)
-  users.users.root.password = "nixos";
-  users.users.nixos = {
-    isNormalUser = true;
-    password = "nixos";
-    extraGroups = [ "wheel" "networkmanager" ];
-  };
-
-  # Create welcome message
-  environment.etc."issue".text = ''
-
-    ╔════════════════════════════════════════════════════════════╗
-    ║                                                            ║
-    ║              Welcome to qalarc_OS Installer                ║
-    ║              NixOS for AMD Ryzen AI Max+ 395               ║
-    ║                                                            ║
-    ╚════════════════════════════════════════════════════════════╝
-
-    Login: nixos / Password: nixos (or root / nixos)
-
-    📋 Quick Start:
-
-    1. Connect to internet:
-       - Ethernet: Should work automatically
-       - WiFi: nmtui  (NetworkManager TUI)
-
-    2. Configure BIOS FIRST (if not done):
-       - Reboot into BIOS (F2 or Del)
-       - Advanced → Graphics Configuration
-       - Set "Dedicated Graphics Memory" to 96GB
-       - Save and boot back to this USB
-
-    3. Install qalarc_OS:
-       cd /etc/qalarc_OS
-       cat docs/INSTALLATION.md
-
-       # Or quick install:
-       ./scripts/quick-install.sh
-
-    📚 Documentation: /etc/qalarc_OS/docs/
-    🔧 Configuration: /etc/qalarc_OS/
-
-    ⚠️  IMPORTANT: Set BIOS to 96GB VRAM before installing!
-
-  '';
-
-  # Show welcome message on login
-  programs.bash.interactiveShellInit = ''
-    if [ "$(tty)" = "/dev/tty1" ]; then
-      cat /etc/issue
-    fi
-  '';
-
-  # Pre-configure git for the installation
-  programs.git = {
-    enable = true;
-    config = {
-      init.defaultBranch = "main";
-      user.name = "QALARC Installer";
-      user.email = "installer@qalarc.local";
-    };
-  };
-
-  # Increase console font size for readability
-  console.font = "ter-v22n";
-  console.packages = [ pkgs.terminus_font ];
-
-  # Include installation helper script
-  environment.systemPackages = [
+    # Installation helper script
     (pkgs.writeShellScriptBin "qalarc-install-help" ''
       #!/bin/sh
       cat << 'EOF'
@@ -147,7 +74,7 @@
          Partition: gdisk /dev/nvme0n1
 
          Recommended layout:
-         - /dev/nvme0n1p1: 512MB (EFI)
+         - /dev/nvme0n1p1: 2GB (EFI - room for multiple kernels)
          - /dev/nvme0n1p2: Remaining (BTRFS + LUKS)
 
       3️⃣  ENCRYPT (Optional but recommended)
@@ -201,6 +128,85 @@
       EOF
     '')
   ];
+
+  # Enable NetworkManager for easier WiFi setup
+  networking.networkmanager.enable = true;
+  networking.wireless.enable = lib.mkForce false; # Disable wpa_supplicant
+
+  # Enable SSH for remote installation (optional)
+  services.openssh = {
+    enable = true;
+    settings.PermitRootLogin = "yes";
+  };
+
+  # Set a default password for live system
+  users.users.root.initialPassword = "nixos";
+  users.users.nixos = {
+    isNormalUser = true;
+    initialPassword = "nixos";
+    extraGroups = [ "wheel" "networkmanager" ];
+  };
+
+  # Create welcome message
+  environment.etc."issue".text = ''
+
+    ╔════════════════════════════════════════════════════════════╗
+    ║                                                            ║
+    ║              Welcome to qalarc_OS Installer                ║
+    ║              NixOS for AMD Ryzen AI Max+ 395               ║
+    ║                                                            ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Login: nixos / Password: nixos (or root / nixos)
+
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+    INSTALLATION OPTIONS:
+
+    1. AUTOMATED INSTALL (Recommended):
+       sudo qalarc-install
+
+    2. MANUAL INSTALL:
+       qalarc-install-help    # Show step-by-step guide
+       cat /etc/qalarc_OS/docs/INSTALLATION.md
+
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+    BEFORE YOU START:
+
+    → Connect to internet first:
+      - Ethernet: Should work automatically
+      - WiFi: nmtui
+
+    → Verify BIOS is configured (F2 at boot):
+      - Advanced → Graphics → Dedicated Memory = 96GB
+
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  '';
+
+  # Show welcome message on login
+  programs.bash.interactiveShellInit = ''
+    # Always show welcome on first login
+    cat /etc/issue
+    echo ""
+    echo "Type 'sudo qalarc-install' to begin installation"
+    echo ""
+  '';
+
+  # Pre-configure git for the installation
+  programs.git = {
+    enable = true;
+    config = {
+      init.defaultBranch = "main";
+      user.name = "QALARC Installer";
+      user.email = "installer@qalarc.local";
+    };
+  };
+
+  # Increase console font size for readability
+  console.font = "ter-v22n";
+  console.packages = [ pkgs.terminus_font ];
 
   # System info
   system.stateVersion = "25.05";
