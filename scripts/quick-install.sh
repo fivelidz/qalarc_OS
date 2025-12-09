@@ -471,22 +471,37 @@ install_nixos() {
     log_warn "This will take 20-60 minutes depending on internet speed..."
     echo ""
 
-    nixos-install --flake "$flake_path" --no-root-passwd
-
-    log_success "NixOS installation complete!"
+    if nixos-install --flake "$flake_path" --no-root-passwd; then
+        log_success "NixOS installation complete!"
+    else
+        log_error "NixOS installation FAILED!"
+        log_error "Check the error messages above."
+        echo ""
+        log_info "You can try again by running: sudo qalarc-install"
+        log_info "Or install manually: nixos-install --flake $flake_path"
+        exit 1
+    fi
 }
 
 # Set passwords
 set_passwords() {
     log_step "Setting Passwords"
 
-    log_info "Setting root password..."
+    echo ""
+    log_warn "You will be asked to set passwords. Type carefully!"
+    log_warn "Characters will NOT show as you type (this is normal)."
+    echo ""
+
+    log_info "Setting ROOT password (type password, press Enter, type again)..."
+    echo ""
     nixos-enter --root /mnt -c "passwd root"
 
-    log_info "Setting $USERNAME password..."
+    echo ""
+    log_info "Setting $USERNAME password (type password, press Enter, type again)..."
+    echo ""
     nixos-enter --root /mnt -c "passwd $USERNAME"
 
-    log_success "Passwords configured"
+    log_success "Passwords configured successfully!"
 }
 
 # Show completion message
