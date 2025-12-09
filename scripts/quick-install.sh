@@ -239,15 +239,39 @@ configure_options() {
 
 # Unmount any existing partitions on target disk
 unmount_disk() {
-    log_info "Unmounting any existing partitions..."
-    umount ${TARGET_DISK}* 2>/dev/null || true
+    log_info "Cleaning up existing partitions and encryption..."
 
-    # Close any LUKS devices
-    for mapper in /dev/mapper/cryptroot /dev/mapper/luks-*; do
-        if [ -e "$mapper" ]; then
-            cryptsetup close "$(basename $mapper)" 2>/dev/null || true
+    # Unmount any mounted partitions from target disk
+    for part in ${TARGET_DISK}*; do
+        if mountpoint -q "$part" 2>/dev/null || mount | grep -q "$part"; then
+            umount -f "$part" 2>/dev/null || true
         fi
     done
+
+    # Also unmount /mnt if it's in use
+    umount -R /mnt 2>/dev/null || true
+
+    # Close ALL dm-crypt/LUKS devices (be thorough)
+    for mapper in /dev/mapper/*; do
+        name=$(basename "$mapper")
+        if [ "$name" != "control" ]; then
+            cryptsetup close "$name" 2>/dev/null || true
+            dmsetup remove "$name" 2>/dev/null || true
+        fi
+    done
+
+    # Wipe any existing LUKS headers on partitions
+    for part in ${TARGET_DISK}p2 ${TARGET_DISK}2; do
+        if [ -b "$part" ]; then
+            log_info "Wiping LUKS header on $part..."
+            cryptsetup erase "$part" 2>/dev/null || true
+            wipefs -a "$part" 2>/dev/null || true
+        fi
+    done
+
+    # Give kernel time to update
+    sleep 1
+    log_success "Cleanup complete"
 }
 
 # Partition the disk
@@ -473,11 +497,11 @@ show_completion() {
     cat << 'EOF'
     ╔════════════════════════════════════════════════════════════════╗
     ║                                                                ║
-    ║              qalarc_OS Installation Complete!                  ║
+    ║         ✅ qalarc_OS Installation Complete! ✅                 ║
     ║                                                                ║
     ╠════════════════════════════════════════════════════════════════╣
     ║                                                                ║
-    ║  Your system is ready! Remove the USB drive and reboot.       ║
+    ║  SUCCESS! Your system is ready.                               ║
     ║                                                                ║
     ║  First boot:                                                   ║
     ║   1. Enter LUKS password (if encrypted)                       ║
@@ -485,26 +509,38 @@ show_completion() {
     ║   3. Verify VRAM: ~/qalarc_OS/scripts/check-uma-allocation.sh ║
     ║   4. Launch AI workspace: qalarc-ai-workspace                 ║
     ║                                                                ║
-    ║  Important:                                                    ║
-    ║   • Ensure BIOS has 96GB UMA VRAM configured                  ║
-    ║   • Connect to internet for any missing packages              ║
+    ║  Remember:                                                     ║
+    ║   • Remove USB drive before reboot                            ║
+    ║   • BIOS should have 96GB UMA VRAM configured                 ║
     ║                                                                ║
     ╚════════════════════════════════════════════════════════════════╝
 EOF
     echo -e "${NC}"
 
-    echo ""
-    read -p "Press Enter to reboot (or Ctrl+C to stay in installer)..."
-
-    # Unmount and reboot
+    # Unmount filesystems
     log_info "Unmounting filesystems..."
-    umount -R /mnt
+    sync
+    umount -R /mnt 2>/dev/null || true
 
     if [ "$USE_ENCRYPTION" = "yes" ]; then
-        cryptsetup close cryptroot
+        cryptsetup close cryptroot 2>/dev/null || true
     fi
 
-    log_info "Rebooting..."
+    log_success "Filesystems unmounted"
+
+    # Countdown to reboot
+    echo ""
+    log_warn "System will reboot in 10 seconds..."
+    log_warn "Remove USB drive now! (Press Ctrl+C to cancel)"
+    echo ""
+
+    for i in 10 9 8 7 6 5 4 3 2 1; do
+        echo -ne "\r  Rebooting in ${i}...  "
+        sleep 1
+    done
+
+    echo ""
+    log_info "Rebooting now!"
     reboot
 }
 
