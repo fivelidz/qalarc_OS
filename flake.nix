@@ -40,6 +40,7 @@
           # Common modules
           ./modules/desktop
           ./modules/ai-ml
+          ./modules/ai-coding  # Claude Code, OpenCode, TMUX, "Open in AI" context menu
           ./modules/nixos-ai-assistant
           ./modules/branding  # Qalarc wallpapers and welcome wizard
           snapperModule  # Can be default or single-drive variant
@@ -50,7 +51,7 @@
           ./modules/torrent
           ./modules/vpn-infrastructure
 
-          # Performance overlay
+          # Overlays
           {
             nixpkgs.overlays = [
               (import ./overlays/performance.nix)
@@ -103,6 +104,9 @@
             
             # Branding (wallpapers and welcome wizard)
             ./modules/branding
+            
+            # AI coding tools (lighter weight for low-end)
+            ./modules/ai-coding
           ];
         };
 

@@ -40,6 +40,56 @@
     # Users can install manually via KWin Scripts in System Settings
   ];
 
+  # ============================================================================
+  # KEYBOARD SHORTCUTS - Qalarc defaults
+  # ============================================================================
+  # These are set via KDE's kglobalshortcutsrc file in the skeleton directory
+  
+  # Global shortcuts for new users
+  environment.etc."skel/.config/kglobalshortcutsrc".text = ''
+    [ghostty.desktop]
+    _k_friendly_name=Ghostty Terminal
+    _launch=Meta+Return,none,Ghostty Terminal
+
+    [qalarc-ai-quick.desktop]
+    _k_friendly_name=Quick AI Access
+    _launch=Meta+A,none,Quick AI Access
+
+    [org.kde.spectacle.desktop]
+    _k_friendly_name=Spectacle
+    RectangularRegionScreenShot=Meta+Shift+S,Meta+Shift+Print,Capture Rectangular Region
+
+    [kwin]
+    Window Close=Meta+Q,Alt+F4,Close Window
+    Window Maximize=Meta+Up,Meta+PgUp,Maximize Window
+    Window Minimize=Meta+Down,Meta+PgDown,Minimize Window
+  '';
+
+  # Desktop entries for shortcut targets
+  environment.etc."xdg/applications/ghostty-shortcut.desktop".text = ''
+    [Desktop Entry]
+    Name=Ghostty Terminal
+    Comment=Open Ghostty terminal
+    Exec=ghostty
+    Icon=utilities-terminal
+    Terminal=false
+    Type=Application
+    Categories=System;TerminalEmulator;
+    Keywords=terminal;console;command line;
+  '';
+
+  environment.etc."xdg/applications/qalarc-ai-quick.desktop".text = ''
+    [Desktop Entry]
+    Name=Quick AI Access
+    Comment=Launch AI assistant quickly
+    Exec=qalarc-ai-quick
+    Icon=applications-ai
+    Terminal=false
+    Type=Application
+    Categories=Development;AI;
+    Keywords=ai;code;assistant;opencode;claude;
+  '';
+
   # KDE Connect (firewall rules for phone integration)
   programs.kdeconnect.enable = true;
 

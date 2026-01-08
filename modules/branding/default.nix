@@ -1,12 +1,10 @@
 { config, pkgs, lib, ... }:
 
 {
-  # Note: setup-wizard.nix and themes.nix disabled temporarily
-  # due to Nix string escaping issues with bash color variables
-  # imports = [
-  #   ./setup-wizard.nix  # Comprehensive onboarding experience
-  #   ./themes.nix        # macOS/Windows/Tiling theme switcher
-  # ];
+  imports = [
+    ./setup-wizard.nix  # Comprehensive onboarding experience
+    ./themes.nix        # macOS/Windows/Tiling theme switcher
+  ];
 
   # Qalarc AI-OS Branding Module
   # Installs wallpapers, welcome wizard, and branding assets
