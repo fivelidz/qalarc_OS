@@ -9,7 +9,7 @@
   boot = {
     # Use CachyOS kernel from chaotic-nyx for optimized AMD performance
     # This provides BORE scheduler and performance patches
-    kernelPackages = pkgs.linuxPackages_cachyos;
+    # kernelPackages = pkgs.linuxPackages_cachyos; # Disabled - use standard kernel
     # Alternative: pkgs.linuxPackages_latest for stock kernel
 
     # Boot loader configuration (GRUB with BTRFS snapshot support)

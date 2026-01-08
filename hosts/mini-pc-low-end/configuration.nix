@@ -12,7 +12,7 @@
   # Boot configuration - optimized for low memory
   boot = {
     # Use CachyOS kernel for performance on limited hardware
-    kernelPackages = pkgs.linuxPackages_cachyos;
+    # kernelPackages = pkgs.linuxPackages_cachyos; # Disabled - use standard kernel
     
     # Boot loader - systemd-boot is lighter than GRUB
     loader = {
