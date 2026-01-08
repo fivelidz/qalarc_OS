@@ -7,10 +7,10 @@
 
     # AMD GPU driver
     videoDrivers = [ "amdgpu" ];
-
-    # Enable libinput for touchpad support (if using laptop)
-    libinput.enable = true;
   };
+
+  # Enable libinput for touchpad/mouse support
+  services.libinput.enable = true;
 
   # Display manager (SDDM for KDE)
   services.displayManager = {
@@ -36,10 +36,8 @@
     kdePackages.kdeconnect-kde  # Phone integration
 
     # Tiling extension for KWin (Krohnkite for Plasma 6)
-    kdePackages.krohnkite
-
-    # Additional window management tools
-    kdePackages.kwin-bismuth  # Alternative tiling (if available)
+    # Note: kdePackages.krohnkite and kwin-bismuth may not be packaged in 25.05
+    # Users can install manually via KWin Scripts in System Settings
   ];
 
   # KDE Connect (firewall rules for phone integration)
@@ -52,13 +50,15 @@
   fonts = {
     packages = with pkgs; [
       noto-fonts
-      noto-fonts-cjk
+      noto-fonts-cjk-sans  # renamed from noto-fonts-cjk
       noto-fonts-emoji
       liberation_ttf
       fira-code
       fira-code-symbols
       jetbrains-mono
-      (nerdfonts.override { fonts = [ "FiraCode" "JetBrainsMono" "Hack" ]; })
+      nerd-fonts.fira-code
+      nerd-fonts.jetbrains-mono
+      nerd-fonts.hack
     ];
 
     fontconfig = {

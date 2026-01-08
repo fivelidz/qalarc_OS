@@ -36,38 +36,25 @@
     # ═══════════════════════════════════════════════════════════
     # PYTHON ML/AI ENVIRONMENT
     # ═══════════════════════════════════════════════════════════
+    #
+    # NOTE: Heavy ML packages (PyTorch, transformers, numpy, etc.)
+    # are installed via pip in isolated venvs to avoid nixpkgs BLAS
+    # compatibility issues. Use: qalarc-setup-ml-venv
+    #
+    # ═══════════════════════════════════════════════════════════
 
     python312
     python312Packages.pip
     python312Packages.virtualenv
-
-    # PyTorch with ROCm (optimized via overlay)
-    python312Packages.torch
-    python312Packages.torchvision
-    python312Packages.torchaudio
-
-    # HuggingFace ecosystem
-    python312Packages.transformers
-    python312Packages.accelerate
-    python312Packages.datasets
-    python312Packages.tokenizers
-
-    # Utilities
-    python312Packages.numpy
-    python312Packages.pandas
-    python312Packages.scipy
-    python312Packages.scikit-learn
-    python312Packages.jupyter
-    python312Packages.ipython
-    python312Packages.requests
+    python312Packages.requests  # Safe, no BLAS dependency
 
     # ═══════════════════════════════════════════════════════════
     # ROCm TOOLS & MONITORING
     # ═══════════════════════════════════════════════════════════
 
-    rocmPackages.rocm-smi      # GPU monitoring (like nvidia-smi)
-    rocmPackages.rocminfo      # ROCm system information
-    rocmPackages.rocm-runtime  # Runtime libraries
+    # rocmPackages.rocm-smi      # GPU monitoring - enable when ROCm is fully configured
+    # rocmPackages.rocminfo      # ROCm system information
+    # rocmPackages.rocm-runtime  # Runtime libraries
     clinfo                     # OpenCL information
 
     # ═══════════════════════════════════════════════════════════
@@ -94,7 +81,7 @@
 
   services.ollama = {
     enable = true;
-    acceleration = "rocm";  # AMD GPU acceleration
+    # acceleration = "rocm";  # AMD GPU acceleration - enable when ROCm is configured
     # Models stored in /var/lib/ollama or custom location
     # Override with: home = "/local-llms/ollama";
   };
@@ -136,6 +123,92 @@
     # 1. OLLAMA CLI HELPERS
     # ──────────────────────────────────────────────────────────
 
+    # ──────────────────────────────────────────────────────────
+    # 0. ML VENV SETUP (Run this first for heavy ML workloads)
+    # ──────────────────────────────────────────────────────────
+
+    (writeShellScriptBin "qalarc-setup-ml-venv" ''
+      #!/bin/sh
+      # Set up Python ML environment with PyTorch, transformers, etc.
+      # Uses pip to avoid nixpkgs BLAS compatibility issues
+
+      VENV_DIR="/local-llms/ml-venv"
+
+      echo "╔════════════════════════════════════════════════════════════╗"
+      echo "║       QALARC ML Python Environment Setup                   ║"
+      echo "╚════════════════════════════════════════════════════════════╝"
+      echo ""
+
+      if [ -d "$VENV_DIR" ]; then
+        echo "⚠️  ML venv already exists at $VENV_DIR"
+        read -p "Reinstall? (y/N): " reinstall
+        if [ "$reinstall" != "y" ] && [ "$reinstall" != "Y" ]; then
+          echo "To activate: source $VENV_DIR/bin/activate"
+          exit 0
+        fi
+        rm -rf "$VENV_DIR"
+      fi
+
+      mkdir -p "$(dirname "$VENV_DIR")"
+
+      echo "🐍 Creating Python virtual environment..."
+      ${pkgs.python312}/bin/python -m venv "$VENV_DIR"
+
+      source "$VENV_DIR/bin/activate"
+
+      echo "📦 Upgrading pip..."
+      pip install --upgrade pip
+
+      echo ""
+      echo "📦 Installing PyTorch with ROCm support..."
+      pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm6.2
+
+      echo ""
+      echo "📦 Installing ML/AI packages..."
+      pip install \
+        numpy \
+        pandas \
+        scipy \
+        scikit-learn \
+        transformers \
+        accelerate \
+        datasets \
+        tokenizers \
+        huggingface_hub \
+        jupyter \
+        ipython \
+        requests
+
+      echo ""
+      echo "✅ ML environment ready!"
+      echo ""
+      echo "To activate:"
+      echo "  source $VENV_DIR/bin/activate"
+      echo ""
+      echo "Or use the wrapper:"
+      echo "  qalarc-ml-shell"
+    '')
+
+    (writeShellScriptBin "qalarc-ml-shell" ''
+      #!/bin/sh
+      # Activate ML venv and start a shell
+
+      VENV_DIR="/local-llms/ml-venv"
+
+      if [ ! -d "$VENV_DIR" ]; then
+        echo "❌ ML venv not found. Run: qalarc-setup-ml-venv"
+        exit 1
+      fi
+
+      echo "🐍 Activating ML environment..."
+      echo "   PyTorch, transformers, numpy, etc. available"
+      echo ""
+
+      export PATH="$VENV_DIR/bin:$PATH"
+      export VIRTUAL_ENV="$VENV_DIR"
+      exec ${pkgs.bashInteractive}/bin/bash --norc -i
+    '')
+
     (writeShellScriptBin "qalarc-ollama-status" ''
       #!/bin/sh
       # Check Ollama status and models
@@ -165,7 +238,7 @@
 
       echo ""
       echo "━━━ GPU Status ━━━"
-      ${pkgs.rocmPackages.rocm-smi}/bin/rocm-smi --showuse --showmeminfo vram 2>/dev/null | head -10
+      rocm-smi --showuse --showmeminfo vram 2>/dev/null || echo "ROCm tools not available (install rocmPackages)"
 
       echo ""
       echo "Quick commands:"
@@ -429,7 +502,23 @@
 
       # GPU
       echo "━━━ GPU (AMD Radeon 8060S) ━━━"
-      ${pkgs.rocmPackages.rocm-smi}/bin/rocm-smi --showuse --showmeminfo vram 2>/dev/null | head -8
+      if command -v rocm-smi >/dev/null 2>&1; then
+        rocm-smi --showuse --showmeminfo vram 2>/dev/null | head -8
+      else
+        echo "⚪ ROCm tools not installed (rocm-smi)"
+        echo "   GPU acceleration may still work via Ollama"
+      fi
+      echo ""
+
+      # ML Venv
+      echo "━━━ ML Python Environment ━━━"
+      if [ -d /local-llms/ml-venv ]; then
+        echo "✅ Installed at /local-llms/ml-venv"
+        echo "   Activate: qalarc-ml-shell"
+      else
+        echo "⚪ Not installed"
+        echo "   Setup: qalarc-setup-ml-venv"
+      fi
       echo ""
 
       # Ollama
@@ -439,6 +528,7 @@
         ${pkgs.ollama}/bin/ollama list 2>/dev/null | head -5
       else
         echo "❌ Not running"
+        echo "   Start: sudo systemctl start ollama"
       fi
       echo ""
 
@@ -468,8 +558,8 @@
       echo ""
       echo "Quick start:"
       echo "  qalarc-ollama-chat           # Ollama CLI chat"
+      echo "  qalarc-ml-shell              # Python ML environment"
       echo "  qalarc-start-textgen-webui   # Start web UI"
-      echo "  qalarc-ai-workspace          # Full TMUX workspace"
     '')
   ];
 
@@ -489,25 +579,26 @@
   # GPU STATS EXPORT (for AI assistants)
   # ═══════════════════════════════════════════════════════════
 
-  systemd.services.gpu-stats-export = {
-    description = "Export GPU statistics for AI assistant consumption";
-    serviceConfig = {
-      Type = "oneshot";
-      ExecStart = pkgs.writeShellScript "export-gpu-stats" ''
-        #!/bin/sh
-        ${pkgs.rocmPackages.rocm-smi}/bin/rocm-smi --showuse --showmeminfo --showtemp --json > /tmp/gpu-stats.json 2>/dev/null
-        ${pkgs.jq}/bin/jq . /tmp/gpu-stats.json > /var/lib/qalarc/gpu-stats.json 2>/dev/null || true
-      '';
-    };
-  };
-
-  systemd.timers.gpu-stats-export = {
-    wantedBy = [ "timers.target" ];
-    timerConfig = {
-      OnBootSec = "1min";
-      OnUnitActiveSec = "5min";
-    };
-  };
+  # GPU stats export - disabled until ROCm is fully configured
+  # systemd.services.gpu-stats-export = {
+  #   description = "Export GPU statistics for AI assistant consumption";
+  #   serviceConfig = {
+  #     Type = "oneshot";
+  #     ExecStart = pkgs.writeShellScript "export-gpu-stats" ''
+  #       #!/bin/sh
+  #       rocm-smi --showuse --showmeminfo --showtemp --json > /tmp/gpu-stats.json 2>/dev/null
+  #       ${pkgs.jq}/bin/jq . /tmp/gpu-stats.json > /var/lib/qalarc/gpu-stats.json 2>/dev/null || true
+  #     '';
+  #   };
+  # };
+  #
+  # systemd.timers.gpu-stats-export = {
+  #   wantedBy = [ "timers.target" ];
+  #   timerConfig = {
+  #     OnBootSec = "1min";
+  #     OnUnitActiveSec = "5min";
+  #   };
+  # };
 
   # ═══════════════════════════════════════════════════════════
   # CLI AI ASSISTANT NOTES

@@ -23,11 +23,11 @@
     krita          # Digital painting
 
     # Image viewers
-    gwenview       # KDE image viewer
-    feh            # Lightweight image viewer
+    kdePackages.gwenview  # KDE image viewer (Qt6)
+    feh                   # Lightweight image viewer
 
     # Video editing
-    kdenlive       # KDE video editor
+    kdePackages.kdenlive  # KDE video editor (Qt6)
     # davinci-resolve  # Professional video editor (if available)
 
     # Screen recording
@@ -44,8 +44,8 @@
     handbrake      # Video transcoding GUI
 
     # Document viewers
-    okular         # KDE document viewer (PDF, ePub, etc.)
-    evince         # GNOME document viewer (backup)
+    kdePackages.okular  # KDE document viewer (PDF, ePub, etc.) (Qt6)
+    evince              # GNOME document viewer (backup)
 
     # Office suite
     libreoffice-qt # LibreOffice with Qt6/KDE integration

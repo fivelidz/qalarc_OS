@@ -29,9 +29,10 @@ in
     };
   };
 
-  # Use MKL-optimized BLAS/LAPACK (even on AMD, still faster than generic)
-  blas = super.mkl;
-  lapack = super.mkl;
+  # Use OpenBLAS with proper isILP64 attribute for numpy compatibility
+  # (MKL lacks the isILP64 attribute that numpy expects)
+  blas = super.blas.override { blasProvider = super.openblas; };
+  lapack = super.lapack.override { lapackProvider = super.openblas; };
 
   # Optimize Ollama with ROCm support
   ollama = (optimizeForROCm super.ollama).overrideAttrs (old: {
@@ -42,11 +43,8 @@ in
   });
 
   # Enable hardware acceleration in FFmpeg
-  ffmpeg-full = super.ffmpeg-full.override {
-    # Enable AMD-specific acceleration
-    vaapiSupport = true;  # VA-API
-    vulkanSupport = true; # Vulkan
-  };
+  # Note: ffmpeg-full already has most features enabled by default in nixpkgs
+  # ffmpeg-full = super.ffmpeg-full;  # Use default (already full-featured)
 
   # Note: Uncommenting the following will disable binary caches
   # and compile everything from source with -march=native.

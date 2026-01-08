@@ -44,6 +44,32 @@ check_root() {
 # Show welcome banner
 show_welcome() {
     clear
+    echo -e "${RED}${BOLD}"
+    cat << 'EOF'
+    ╔════════════════════════════════════════════════════════════════╗
+    ║                                                                ║
+    ║                    ⚠️  WARNING ⚠️                               ║
+    ║                                                                ║
+    ║          THIS WILL ERASE ALL DATA ON THE SELECTED DISK        ║
+    ║                                                                ║
+    ║   This installer will FORMAT and INSTALL a new operating      ║
+    ║   system. All existing data on the target drive will be       ║
+    ║   PERMANENTLY DELETED.                                        ║
+    ║                                                                ║
+    ╚════════════════════════════════════════════════════════════════╝
+EOF
+    echo -e "${NC}"
+    echo ""
+    echo -e "${YELLOW}Type 'YES' (uppercase) to proceed, or anything else to cancel:${NC}"
+    read -p "> " confirm
+    if [ "$confirm" != "YES" ]; then
+        echo ""
+        log_info "Installation cancelled. No changes were made."
+        echo ""
+        exit 0
+    fi
+
+    clear
     echo -e "${CYAN}"
     cat << 'EOF'
     ╔════════════════════════════════════════════════════════════════╗
@@ -66,7 +92,7 @@ show_welcome() {
 EOF
     echo -e "${NC}"
     echo ""
-    read -p "Press Enter to continue or Ctrl+C to exit..."
+    read -p "Press Enter to continue..."
 }
 
 # Check network connectivity
@@ -79,17 +105,45 @@ check_network() {
     else
         log_warn "No network connection detected"
         echo ""
-        echo "Connect to WiFi using: nmtui"
-        echo "Or plug in Ethernet cable"
+        log_info "Launching WiFi configuration tool..."
         echo ""
-        read -p "Press Enter after connecting to network..."
+        echo "  Use arrow keys to navigate"
+        echo "  Select 'Activate a connection' to connect to WiFi"
+        echo "  Press ESC or select 'Back'/'Quit' when done"
+        echo ""
+        read -p "Press Enter to open network manager..."
+
+        # Launch nmtui for WiFi setup
+        nmtui
+
+        echo ""
+        log_info "Checking connection..."
+        sleep 2
 
         if ping -c 1 -W 3 nixos.org &>/dev/null; then
             log_success "Network connection verified"
             return 0
         else
-            log_error "Still no network. Cannot proceed without internet."
-            exit 1
+            log_warn "Still no network detected."
+            echo ""
+            echo "Options:"
+            echo "  1) Try WiFi setup again"
+            echo "  2) Continue anyway (will fail if no connection)"
+            echo "  3) Cancel installation"
+            echo ""
+            read -p "Select option (1/2/3): " net_choice
+            case $net_choice in
+                1)
+                    check_network
+                    ;;
+                2)
+                    log_warn "Proceeding without verified network..."
+                    ;;
+                *)
+                    log_error "Installation cancelled."
+                    exit 1
+                    ;;
+            esac
         fi
     fi
 }
@@ -416,7 +470,8 @@ setup_configuration() {
     # Copy qalarc_OS from installer or clone from git
     if [ -d "$QALARC_OS_PATH" ]; then
         log_info "Copying qalarc_OS configuration from installer..."
-        cp -r "$QALARC_OS_PATH" /mnt/home/$USERNAME/qalarc_OS
+        # Use -L to dereference symlinks (ISO files are symlinked to /etc/static/)
+        cp -rL "$QALARC_OS_PATH" /mnt/home/$USERNAME/qalarc_OS
         # Fix permissions (files from ISO are read-only)
         chmod -R u+w /mnt/home/$USERNAME/qalarc_OS
     else

@@ -7,8 +7,10 @@
 
   # Boot configuration
   boot = {
-    # Use CachyOS kernel from Chaotic-Nyx for performance
+    # Use CachyOS kernel from chaotic-nyx for optimized AMD performance
+    # This provides BORE scheduler and performance patches
     kernelPackages = pkgs.linuxPackages_cachyos;
+    # Alternative: pkgs.linuxPackages_latest for stock kernel
 
     # Boot loader configuration (GRUB with BTRFS snapshot support)
     loader = {
@@ -55,6 +57,9 @@
     extraGroups = [ "wheel" "networkmanager" "docker" "video" "render" ];
     # Set password with: passwd qalarc
     # Or use hashedPassword for declarative password management
+    openssh.authorizedKeys.keys = [
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJPkUkXCsLaZ7yeQR8oBkgSqXMY/qi9jiqY3CL2sb7RF fivelidz@cachyos-x8664"
+    ];
   };
 
   # Enable unfree packages (needed for NVIDIA tools, Chrome, etc.)
@@ -95,8 +100,8 @@
     htop
   ];
 
-  # Enable sound
-  hardware.pulseaudio.enable = false;
+  # Enable sound (PipeWire replaces PulseAudio)
+  services.pulseaudio.enable = false;
   services.pipewire = {
     enable = true;
     alsa.enable = true;

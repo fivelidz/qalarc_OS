@@ -147,6 +147,15 @@
     extraGroups = [ "wheel" "networkmanager" ];
   };
 
+  # Auto-login to TTY1 (installer runs automatically after login)
+  services.getty.autologinUser = "nixos";
+
+  # Passwordless sudo for installer user
+  security.sudo.extraRules = [{
+    users = [ "nixos" ];
+    commands = [{ command = "ALL"; options = [ "NOPASSWD" ]; }];
+  }];
+
   # Create welcome message
   environment.etc."issue".text = ''
 
@@ -185,13 +194,15 @@
 
   '';
 
-  # Show welcome message on login
+  # Auto-run installer on login (with strong confirmation in the script)
   programs.bash.interactiveShellInit = ''
-    # Always show welcome on first login
+    # Show welcome and auto-launch installer
     cat /etc/issue
     echo ""
-    echo "Type 'sudo qalarc-install' to begin installation"
+    echo "Starting qalarc_OS installer automatically..."
     echo ""
+    sleep 2
+    sudo /etc/qalarc_OS/scripts/quick-install.sh
   '';
 
   # Pre-configure git for the installation

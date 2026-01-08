@@ -6,20 +6,21 @@
 
   # qBittorrent systemd service (runs as user service)
   # Accessible via web UI at http://localhost:8080
-  systemd.user.services.qbittorrent = {
-    description = "qBittorrent torrent client (headless)";
-    after = [ "network.target" ];
-
-    serviceConfig = {
-      Type = "simple";
-      ExecStart = "${pkgs.qbittorrent}/bin/qbittorrent-nox";
-      Restart = "on-failure";
-      RestartSec = "10s";
-    };
-
-    # Enable with: systemctl --user enable qbittorrent
-    wantedBy = [ "default.target" ];
-  };
+  # NOTE: Disabled by default - enable manually if needed
+  # systemd.user.services.qbittorrent = {
+  #   description = "qBittorrent torrent client (headless)";
+  #   after = [ "network.target" ];
+  #
+  #   serviceConfig = {
+  #     Type = "simple";
+  #     ExecStart = "${pkgs.qbittorrent-nox}/bin/qbittorrent-nox";
+  #     Restart = "on-failure";
+  #     RestartSec = "10s";
+  #   };
+  #
+  #   # Enable with: systemctl --user enable qbittorrent
+  #   wantedBy = [ "default.target" ];
+  # };
 
   # Transmission daemon (alternative to qBittorrent)
   services.transmission = {
@@ -81,11 +82,12 @@
   # Helper script for creating torrents from context library
   environment.systemPackages = with pkgs; [
     # GUI torrent clients
-    qbittorrent      # Feature-rich, popular
-    transmission-gtk # Lightweight alternative
+    qbittorrent      # Feature-rich, popular (includes both GUI and -nox)
+    transmission_4-gtk # Lightweight alternative
 
     # CLI torrent clients
-    transmission     # Daemon + CLI
+    qbittorrent-nox  # Headless qBittorrent (for servers)
+    transmission_4   # Daemon + CLI
     aria2            # Multi-protocol downloader (HTTP, FTP, BitTorrent)
 
     # Torrent utilities

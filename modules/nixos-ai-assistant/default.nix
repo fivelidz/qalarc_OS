@@ -9,7 +9,7 @@
     # Core AI assistant tools
     python312
     python312Packages.pip
-    python312Packages.uvx
+    uv   # Modern Python package manager (includes uvx)
     git
 
     # NixOS AI helpers

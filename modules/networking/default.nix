@@ -32,7 +32,7 @@
   services.openssh = {
     enable = true;
     settings = {
-      PasswordAuthentication = false;  # Use keys only
+      PasswordAuthentication = true;  # Enable password auth for remote management
       PermitRootLogin = "no";
       X11Forwarding = true;  # Allow graphical app forwarding
     };
@@ -146,22 +146,29 @@
     wireshark  # GUI network analyzer
   ];
 
-  # Systemd service to export network status for AI assistants
-  systemd.services.network-status-export = {
-    description = "Export network status for AI assistant consumption";
-    serviceConfig = {
-      Type = "oneshot";
-      ExecStart = "${pkgs.bash}/bin/bash -c '${pkgs.coreutils}/bin/env qalarc-network-status > /var/lib/qalarc/network-status.json'";
-    };
-  };
+  # Create qalarc state directory
+  systemd.tmpfiles.rules = [
+    "d /var/lib/qalarc 0755 root root -"
+  ];
 
-  systemd.timers.network-status-export = {
-    wantedBy = [ "timers.target" ];
-    timerConfig = {
-      OnBootSec = "1min";
-      OnUnitActiveSec = "5min";
-    };
-  };
+  # Network status export service - disabled by default to avoid boot errors
+  # Enable after full configuration is applied
+  # systemd.services.network-status-export = {
+  #   description = "Export network status for AI assistant consumption";
+  #   serviceConfig = {
+  #     Type = "oneshot";
+  #     ExecStart = "/run/current-system/sw/bin/qalarc-network-status";
+  #     StandardOutput = "file:/var/lib/qalarc/network-status.json";
+  #   };
+  # };
+  #
+  # systemd.timers.network-status-export = {
+  #   wantedBy = [ "timers.target" ];
+  #   timerConfig = {
+  #     OnBootSec = "1min";
+  #     OnUnitActiveSec = "5min";
+  #   };
+  # };
 
   # CLI AI assistant interface:
   # - Network status: qalarc-network-status

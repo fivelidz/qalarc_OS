@@ -8,7 +8,7 @@
     # System monitors
     btop       # Modern system monitor
     htop       # Classic system monitor
-    nvtop      # GPU monitor (works with AMD via ROCm)
+    nvtopPackages.amd  # GPU monitor for AMD
     radeontop  # AMD-specific GPU monitor
     conky      # Desktop system info overlay
 
@@ -90,7 +90,7 @@
     ''${color white}Swap: ''${color grey}$swap / $swapmax
 
     ''${color white}GPU (Radeon 8060S):
-    ''${color grey}''${exec ${pkgs.radeontop}/bin/radeontop -d - -l 1 2>/dev/null | grep -oP 'gpu \K[0-9.]+' || echo "N/A"}% ''${color white}VRAM: ''${color grey}''${exec ${pkgs.rocmPackages.rocm-smi}/bin/rocm-smi --showmeminfo vram --json 2>/dev/null | ${pkgs.jq}/bin/jq -r '.[0].vram_used' 2>/dev/null || echo "N/A"} MB
+    ''${color grey}''${exec ${pkgs.radeontop}/bin/radeontop -d - -l 1 2>/dev/null | grep -oP 'gpu \K[0-9.]+' || echo "N/A"}% ''${color white}VRAM: ''${color grey}''${exec rocm-smi --showmeminfo vram --json 2>/dev/null | ${pkgs.jq}/bin/jq -r '.[0].vram_used' 2>/dev/null || echo "N/A"} MB
 
     ''${color white}''${font JetBrains Mono:bold:size=11}Storage''${font}
     ''${color grey}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -121,57 +121,33 @@
   # };
 
   # System state export service (JSON for AI assistants)
-  systemd.services.system-state-export = {
-    description = "Export system state for AI assistant consumption";
-    serviceConfig = {
-      Type = "oneshot";
-      ExecStart = pkgs.writeShellScript "export-system-state" ''
-        #!/bin/sh
-        # Export comprehensive system state as JSON
-
-        cat > /var/lib/qalarc/system-state.json << 'EOF'
-        {
-          "hostname": "$(${pkgs.hostname}/bin/hostname)",
-          "uptime_seconds": $(${pkgs.coreutils}/bin/cat /proc/uptime | ${pkgs.coreutils}/bin/cut -d' ' -f1),
-          "cpu": {
-            "model": "AMD Ryzen AI Max+ 395",
-            "cores": $(${pkgs.coreutils}/bin/nproc),
-            "usage_percent": $(${pkgs.coreutils}/bin/top -bn1 | ${pkgs.gnugrep}/bin/grep "Cpu(s)" | ${pkgs.gnused}/bin/sed "s/.*, *\([0-9.]*\)%* id.*/\1/" | ${pkgs.gawk}/bin/awk '{print 100 - $1}')
-          },
-          "memory": {
-            "total_mb": $(${pkgs.coreutils}/bin/free -m | ${pkgs.gawk}/bin/awk '/^Mem:/{print $2}'),
-            "used_mb": $(${pkgs.coreutils}/bin/free -m | ${pkgs.gawk}/bin/awk '/^Mem:/{print $3}'),
-            "available_mb": $(${pkgs.coreutils}/bin/free -m | ${pkgs.gawk}/bin/awk '/^Mem:/{print $7}')
-          },
-          "gpu": {
-            "model": "AMD Radeon 8060S",
-            "driver": "amdgpu",
-            "uma_vram_gb": 96
-          },
-          "storage": {
-            "root": "$(${pkgs.coreutils}/bin/df -h / | ${pkgs.gawk}/bin/awk 'NR==2{print $3 " / " $2 " (" $5 ")"}')",
-            "home": "$(${pkgs.coreutils}/bin/df -h /home | ${pkgs.gawk}/bin/awk 'NR==2{print $3 " / " $2 " (" $5 ")"}')",
-            "llms": "$(${pkgs.coreutils}/bin/df -h /local-llms 2>/dev/null | ${pkgs.gawk}/bin/awk 'NR==2{print $3 " / " $2 " (" $5 ")"}' || echo 'N/A')"
-          },
-          "services": {
-            "ollama": "$(${pkgs.systemd}/bin/systemctl is-active ollama)",
-            "ssh": "$(${pkgs.systemd}/bin/systemctl is-active sshd)",
-            "tailscale": "$(${pkgs.systemd}/bin/systemctl is-active tailscaled)"
-          },
-          "last_updated": "$(${pkgs.coreutils}/bin/date -Iseconds)"
-        }
-        EOF
-      '';
-    };
-  };
-
-  systemd.timers.system-state-export = {
-    wantedBy = [ "timers.target" ];
-    timerConfig = {
-      OnBootSec = "30s";
-      OnUnitActiveSec = "1min";  # Update every minute
-    };
-  };
+  # NOTE: Disabled by default to avoid boot errors. Enable after full setup.
+  # systemd.services.system-state-export = {
+  #   description = "Export system state for AI assistant consumption";
+  #   serviceConfig = {
+  #     Type = "oneshot";
+  #     ExecStart = pkgs.writeShellScript "export-system-state" ''
+  #       #!/bin/sh
+  #       # Export comprehensive system state as JSON
+  #       mkdir -p /var/lib/qalarc
+  #       cat > /var/lib/qalarc/system-state.json << EOF
+  #       {
+  #         "hostname": "$(hostname)",
+  #         "uptime_seconds": $(cat /proc/uptime | cut -d' ' -f1),
+  #         "last_updated": "$(date -Iseconds)"
+  #       }
+  #       EOF
+  #     '';
+  #   };
+  # };
+  #
+  # systemd.timers.system-state-export = {
+  #   wantedBy = [ "timers.target" ];
+  #   timerConfig = {
+  #     OnBootSec = "30s";
+  #     OnUnitActiveSec = "1min";
+  #   };
+  # };
 
   # CLI AI assistant interface:
   # - System state: cat /var/lib/qalarc/system-state.json | jq

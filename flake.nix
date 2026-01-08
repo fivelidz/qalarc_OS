@@ -41,6 +41,7 @@
           ./modules/desktop
           ./modules/ai-ml
           ./modules/nixos-ai-assistant
+          ./modules/branding  # Qalarc wallpapers and welcome wizard
           snapperModule  # Can be default or single-drive variant
           ./modules/networking
           ./modules/development
@@ -89,7 +90,21 @@
           ];
         };
 
-        # Add more hosts as needed
+        # Low-end mini PC (8GB RAM, 256GB storage)
+        # For servers, assistants, or standalone workstations
+        mini-pc-low-end = nixpkgs.lib.nixosSystem {
+          inherit system;
+          modules = [
+            # Chaotic-Nyx for CachyOS kernel
+            chaotic.nixosModules.default
+            
+            ./hosts/mini-pc-low-end/configuration.nix
+            ./hosts/mini-pc-low-end/hardware-configuration.nix
+            
+            # Branding (wallpapers and welcome wizard)
+            ./modules/branding
+          ];
+        };
 
         # Custom installer ISO with qalarc_OS pre-loaded
         installer = nixpkgs.lib.nixosSystem {
