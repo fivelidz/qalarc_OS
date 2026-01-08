@@ -22,6 +22,10 @@
     let
       system = "x86_64-linux";
 
+      # Custom packages overlay
+      qalarcPackagesOverlay = final: prev: 
+        import ./packages { pkgs = prev; };
+
       # Helper function to create a host configuration
       mkHost = { hostname, snapperModule ? ./modules/snapper }: nixpkgs.lib.nixosSystem {
         inherit system;
@@ -56,6 +60,7 @@
           {
             nixpkgs.overlays = [
               (import ./overlays/performance.nix)
+              qalarcPackagesOverlay
             ];
           }
 

@@ -222,7 +222,10 @@
         # Apply theme hints
         echo ""
         echo -e "  ''${DIM}Theme will be applied after setup completes.''${NC}"
-        echo -e "  ''${DIM}You can change it later in System Settings > Global Theme''${NC}"
+        echo ""
+        echo -e "  ''${CYAN}TIP:''${NC} You can always change themes later:"
+        echo -e "  ''${DIM}  System Settings → Appearance → Global Theme''${NC}"
+        echo -e "  ''${DIM}  Or run: qalarc-theme''${NC}"
         
         wait_key
       }
@@ -238,17 +241,26 @@
         echo -e "  ''${WHITE}What will you primarily use this system for?''${NC}"
         echo -e "  ''${DIM}(Select all that apply, space-separated)''${NC}"
         echo ""
+        echo -e "  ''${CYAN}━━━ PROFESSIONAL ━━━''${NC}"
         print_option "1" "''${WHITE}Software Development''${NC} - Coding assistant, code review, debugging"
         print_option "2" "''${WHITE}Research & Writing''${NC} - Papers, articles, analysis"
         print_option "3" "''${WHITE}Healthcare/Medical''${NC} - Clinical notes, drug interactions, coding"
         print_option "4" "''${WHITE}Legal''${NC} - Case research, document analysis, contracts"
-        print_option "5" "''${WHITE}Creative''${NC} - Writing, storytelling, brainstorming"
-        print_option "6" "''${WHITE}Data Analysis''${NC} - Processing, insights, visualization"
-        print_option "7" "''${WHITE}Education''${NC} - Teaching, tutoring, course creation"
+        print_option "5" "''${WHITE}Data Analysis''${NC} - Processing, insights, visualization"
+        print_option "6" "''${WHITE}Education''${NC} - Teaching, tutoring, course creation"
+        echo ""
+        echo -e "  ''${CYAN}━━━ PERSONAL ━━━''${NC}"
+        print_option "7" "''${WHITE}Creative''${NC} - Writing, storytelling, brainstorming"
         print_option "8" "''${WHITE}General Assistant''${NC} - Chat, Q&A, everyday tasks"
+        print_option "9" "''${WHITE}Gaming''${NC} - Game streaming, emulation, performance"
+        print_option "10" "''${WHITE}Hobby AI''${NC} - Experimenting, learning, tinkering"
+        echo ""
+        echo -e "  ''${CYAN}━━━ SPECIAL ━━━''${NC}"
+        print_option "11" "''${WHITE}Off-Grid / Privacy''${NC} - Maximum privacy, no cloud, air-gapped capable"
+        print_option "12" "''${WHITE}Home Server''${NC} - Media server, file sharing, automation"
         echo ""
         
-        read -p "  Select use cases (e.g., 1 2 4): " usecase_input
+        read -p "  Select use cases (e.g., 1 2 10): " usecase_input
         
         # Parse selections
         USECASES=""
@@ -258,10 +270,14 @@
             2) USECASES="$USECASES research" ;;
             3) USECASES="$USECASES healthcare" ;;
             4) USECASES="$USECASES legal" ;;
-            5) USECASES="$USECASES creative" ;;
-            6) USECASES="$USECASES data" ;;
-            7) USECASES="$USECASES education" ;;
+            5) USECASES="$USECASES data" ;;
+            6) USECASES="$USECASES education" ;;
+            7) USECASES="$USECASES creative" ;;
             8) USECASES="$USECASES general" ;;
+            9) USECASES="$USECASES gaming" ;;
+            10) USECASES="$USECASES hobby-ai" ;;
+            11) USECASES="$USECASES offgrid" ;;
+            12) USECASES="$USECASES homeserver" ;;
           esac
         done
         
@@ -492,79 +508,96 @@
       
       step_apps() {
         clear_screen
-        print_step "8/9" "APPLICATIONS & COMMUNICATION"
+        print_step "8/9" "APPLICATIONS"
         
-        echo -e "  ''${WHITE}Select applications to install:''${NC}"
+        echo -e "  ''${WHITE}The following applications are included by default.''${NC}"
+        echo -e "  ''${DIM}Enter numbers to REMOVE apps you don't want (or press Enter for all)''${NC}"
+        echo ""
+        
+        echo -e "  ''${CYAN}━━━ AI CODING TOOLS (Always Included) ━━━''${NC}"
+        echo -e "  ''${GREEN}✓''${NC} Claude Code - AI coding assistant (cloud)"
+        echo -e "  ''${GREEN}✓''${NC} OpenCode - AI coding assistant (local models)"
+        echo -e "  ''${GREEN}✓''${NC} Ghostty + TMUX - Terminal environment"
+        echo -e "  ''${GREEN}✓''${NC} Right-click 'Open in AI' for folders"
         echo ""
         
         echo -e "  ''${CYAN}━━━ MESSAGING ━━━''${NC}"
-        print_option "1" "''${WHITE}Signal''${NC} - Encrypted messaging (CLI + Desktop)"
-        print_info "     Privacy-focused, E2E encrypted, qalarc-signal helper"
-        echo ""
-        print_option "2" "''${WHITE}WhatsApp''${NC} - Via nchat terminal client"
-        print_info "     Access WhatsApp from terminal, qalarc-whatsapp helper"
-        echo ""
-        print_option "3" "''${WHITE}Telegram''${NC} - Via nchat terminal client"
-        print_info "     Telegram support included with nchat"
-        echo ""
-        print_option "4" "''${WHITE}Discord''${NC} - Community chat"
-        print_info "     Desktop client for communities"
+        echo -e "  ''${GREEN}[1]''${NC} Signal - Encrypted messaging (CLI + Desktop)"
+        echo -e "  ''${GREEN}[2]''${NC} WhatsApp/Telegram - Via nchat terminal client"
         echo ""
         
         echo -e "  ''${CYAN}━━━ BROWSERS ━━━''${NC}"
-        print_option "5" "''${WHITE}Firefox''${NC} - Privacy-focused browser"
-        print_option "6" "''${WHITE}Brave''${NC} - Chromium with ad blocking"
-        print_option "7" "''${WHITE}Chromium''${NC} - Open source Chrome"
+        echo -e "  ''${GREEN}[3]''${NC} Firefox - Privacy-focused browser"
+        echo -e "  ''${GREEN}[4]''${NC} Brave - Chromium with ad blocking"
         echo ""
         
-        echo -e "  ''${CYAN}━━━ MEDIA & PRODUCTIVITY ━━━''${NC}"
-        print_option "8" "''${WHITE}LibreOffice''${NC} - Office suite"
-        print_option "9" "''${WHITE}GIMP''${NC} - Image editing"
-        print_option "10" "''${WHITE}OBS Studio''${NC} - Streaming/recording"
-        print_option "11" "''${WHITE}VLC''${NC} - Media player"
+        echo -e "  ''${CYAN}━━━ PRODUCTIVITY ━━━''${NC}"
+        echo -e "  ''${GREEN}[5]''${NC} LibreOffice - Office suite"
+        echo -e "  ''${GREEN}[6]''${NC} GIMP - Image editing"
+        echo -e "  ''${GREEN}[7]''${NC} Inkscape - Vector graphics"
+        echo ""
+        
+        echo -e "  ''${CYAN}━━━ MEDIA ━━━''${NC}"
+        echo -e "  ''${GREEN}[8]''${NC} VLC - Media player"
+        echo -e "  ''${GREEN}[9]''${NC} OBS Studio - Streaming/recording"
+        echo -e "  ''${GREEN}[10]''${NC} MPV - Lightweight video player"
         echo ""
         
         echo -e "  ''${CYAN}━━━ UTILITIES ━━━''${NC}"
-        print_option "12" "''${WHITE}Bitwarden''${NC} - Password manager"
-        print_option "13" "''${WHITE}Syncthing''${NC} - File sync"
-        print_option "14" "''${WHITE}qBittorrent''${NC} - Torrent client"
+        echo -e "  ''${GREEN}[11]''${NC} Bitwarden - Password manager"
+        echo -e "  ''${GREEN}[12]''${NC} Syncthing - File sync across devices"
+        echo -e "  ''${GREEN}[13]''${NC} qBittorrent - Torrent client"
+        echo -e "  ''${GREEN}[14]''${NC} Discord - Community chat"
         echo ""
         
-        read -p "  Select applications (e.g., 1 2 5 11): " apps_input
+        read -p "  Remove which apps? (e.g., 6 7 9 or Enter for all): " remove_input
         
-        APPS=""
-        for app in $apps_input; do
-          case $app in
-            1) APPS="$APPS signal" ;;
-            2) APPS="$APPS whatsapp" ;;
-            3) APPS="$APPS telegram" ;;
-            4) APPS="$APPS discord" ;;
-            5) APPS="$APPS firefox" ;;
-            6) APPS="$APPS brave" ;;
-            7) APPS="$APPS chromium" ;;
-            8) APPS="$APPS libreoffice" ;;
-            9) APPS="$APPS gimp" ;;
-            10) APPS="$APPS obs" ;;
-            11) APPS="$APPS vlc" ;;
-            12) APPS="$APPS bitwarden" ;;
-            13) APPS="$APPS syncthing" ;;
-            14) APPS="$APPS qbittorrent" ;;
+        # Start with all apps
+        APPS="signal nchat firefox brave libreoffice gimp inkscape vlc obs mpv bitwarden syncthing qbittorrent discord"
+        
+        # Remove deselected
+        for r in $remove_input; do
+          case $r in
+            1) APPS=$(echo "$APPS" | sed 's/signal//g') ;;
+            2) APPS=$(echo "$APPS" | sed 's/nchat//g') ;;
+            3) APPS=$(echo "$APPS" | sed 's/firefox//g') ;;
+            4) APPS=$(echo "$APPS" | sed 's/brave//g') ;;
+            5) APPS=$(echo "$APPS" | sed 's/libreoffice//g') ;;
+            6) APPS=$(echo "$APPS" | sed 's/gimp//g') ;;
+            7) APPS=$(echo "$APPS" | sed 's/inkscape//g') ;;
+            8) APPS=$(echo "$APPS" | sed 's/vlc//g') ;;
+            9) APPS=$(echo "$APPS" | sed 's/obs//g') ;;
+            10) APPS=$(echo "$APPS" | sed 's/mpv//g') ;;
+            11) APPS=$(echo "$APPS" | sed 's/bitwarden//g') ;;
+            12) APPS=$(echo "$APPS" | sed 's/syncthing//g') ;;
+            13) APPS=$(echo "$APPS" | sed 's/qbittorrent//g') ;;
+            14) APPS=$(echo "$APPS" | sed 's/discord//g') ;;
           esac
         done
         
+        # Clean up whitespace
+        APPS=$(echo "$APPS" | xargs)
+        
         echo "$APPS" > "$CONFIG_DIR/applications"
         echo ""
-        print_selected "Applications: $APPS"
+        print_selected "Installing: $APPS"
         
-        # Show messaging hints
-        if echo "$APPS" | grep -q "signal\|whatsapp"; then
+        # Show AI coding hints
+        echo ""
+        echo -e "  ''${CYAN}━━━ AI CODING TIPS ━━━''${NC}"
+        echo -e "  ''${DIM}• Right-click any folder → 'Open in AI' to start coding''${NC}"
+        echo -e "  ''${DIM}• Press Meta+A for quick AI access from anywhere''${NC}"
+        echo -e "  ''${DIM}• TMUX: Ctrl+a then 'o' opens Claude, 'O' opens OpenCode''${NC}"
+        
+        # Show messaging hints if included
+        if echo "$APPS" | grep -q "signal\|nchat"; then
           echo ""
-          echo -e "  ''${CYAN}━━━ MESSAGING SETUP HINTS ━━━''${NC}"
+          echo -e "  ''${CYAN}━━━ MESSAGING SETUP ━━━''${NC}"
           if echo "$APPS" | grep -q "signal"; then
             echo -e "  ''${DIM}Signal: Run 'qalarc-signal link' to pair with phone''${NC}"
           fi
-          if echo "$APPS" | grep -q "whatsapp"; then
-            echo -e "  ''${DIM}WhatsApp: Run 'qalarc-whatsapp setup' for instructions''${NC}"
+          if echo "$APPS" | grep -q "nchat"; then
+            echo -e "  ''${DIM}WhatsApp/Telegram: Run 'qalarc-whatsapp setup' for instructions''${NC}"
           fi
         fi
         
