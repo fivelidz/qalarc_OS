@@ -1,20 +1,23 @@
 { config, pkgs, lib, ... }:
 
+let
+  # Use our custom grub-btrfs package from the overlay
+  grub-btrfs = pkgs.grub-btrfs or (pkgs.callPackage ../../packages/grub-btrfs { });
+in
 {
   # Snapper configuration for BTRFS snapshots with GRUB integration
   # Single-drive variant: Only snapshots root and home (no /context subvolume)
 
-  # Install Snapper and related tools + manual snapshot script
+  # Install Snapper and related tools
   environment.systemPackages = with pkgs; [
     snapper
-    snapper-gui  # GUI for browsing snapshots
-    # grub-btrfs  # TODO: Not in nixpkgs 25.05 stable yet - add when available
+    snapper-gui       # GUI for browsing snapshots
+    grub-btrfs        # GRUB menu entries for snapshots (our custom package)
+    inotify-tools     # Required by grub-btrfsd daemon
 
-    # Manual snapshot script
+    # Manual snapshot script for CLI AI assistants and keyboard shortcuts
     (pkgs.writeShellScriptBin "qalarc-snapshot" ''
       #!/bin/sh
-      # Manual snapshot creation script
-
       TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
       DESCRIPTION="''${1:-manual-snapshot}"
 
@@ -28,6 +31,11 @@
         ${pkgs.libnotify}/bin/notify-send "Snapshot Created" \
           "System snapshot created: $DESCRIPTION-$TIMESTAMP"
       fi
+
+      # Export snapshot info as JSON for AI assistants
+      mkdir -p /var/lib/qalarc
+      ${pkgs.snapper}/bin/snapper --config root list --columns number,date,description --json \
+        > /var/lib/qalarc/snapshots.json 2>/dev/null || true
 
       echo "Snapshot created: $DESCRIPTION-$TIMESTAMP"
     '')
@@ -79,7 +87,7 @@
 
     # Note: /local-llms and /nix are NOT snapshotted by default
     # - /nix: Managed by Nix, doesn't need snapshots
-    # - /local-llms: Large model files in /home/fivelidz/local-llms, rarely change
+    # - /local-llms: Large model files in /home/qalarc/local-llms, rarely change
     # You can manually snapshot these if needed
   };
 
@@ -95,30 +103,44 @@
   # This automatically creates snapshots before system updates
   system.activationScripts.snapper-pre-rebuild = lib.mkBefore ''
     if [ -e /run/current-system ]; then
-      ${pkgs.snapper}/bin/snapper --config root create --description "pre-nixos-rebuild" --cleanup-algorithm number
+      ${pkgs.snapper}/bin/snapper --config root create --description "pre-nixos-rebuild" --cleanup-algorithm number 2>/dev/null || true
     fi
   '';
 
   system.activationScripts.snapper-post-rebuild = lib.mkAfter ''
-    ${pkgs.snapper}/bin/snapper --config root create --description "post-nixos-rebuild" --cleanup-algorithm number
+    ${pkgs.snapper}/bin/snapper --config root create --description "post-nixos-rebuild" --cleanup-algorithm number 2>/dev/null || true
   '';
 
   # grub-btrfs daemon for automatic GRUB menu updates
   # This watches /.snapshots and regenerates GRUB menu when snapshots change
-  # TODO: Disabled until grub-btrfs is available in nixpkgs 25.05
-  # systemd.services.grub-btrfsd = {
-  #   description = "grub-btrfs daemon to update GRUB menu";
-  #   serviceConfig = {
-  #     Type = "simple";
-  #     ExecStart = "${pkgs.grub-btrfs}/bin/grub-btrfsd --syslog /.snapshots";
-  #     Restart = "on-failure";
-  #     RestartSec = "10s";
-  #   };
-  #   wantedBy = [ "multi-user.target" ];
-  # };
+  systemd.services.grub-btrfsd = {
+    description = "grub-btrfs daemon to update GRUB menu with snapshots";
+    after = [ "local-fs.target" ];
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      Type = "simple";
+      ExecStart = "${grub-btrfs}/bin/grub-btrfsd --syslog /.snapshots";
+      Restart = "on-failure";
+      RestartSec = "10s";
+    };
+  };
+
+  # Link grub-btrfs script to GRUB's config directory
+  # This makes GRUB include snapshot entries during grub-mkconfig
+  environment.etc."grub.d/41_snapshots-btrfs" = {
+    source = "${grub-btrfs}/etc/grub.d/41_snapshots-btrfs";
+    mode = "0755";
+  };
 
   # Ensure snapshot directory exists
   systemd.tmpfiles.rules = [
     "d /.snapshots 0750 root root -"
   ];
+
+  # CLI AI assistant interface:
+  # - List snapshots: snapper list --json
+  # - Create snapshot: qalarc-snapshot "description"
+  # - Boot into snapshot: Select from GRUB menu (automatically generated)
+  # - Restore from snapshot: snapper rollback <number>
+  # - Snapshot stats: cat /var/lib/qalarc/snapshots.json
 }
