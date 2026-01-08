@@ -21,7 +21,7 @@ stdenv.mkDerivation rec {
     owner = "Antynea";
     repo = "grub-btrfs";
     rev = "v${version}";
-    sha256 = "sha256-WtMwL5F3c8wx09RIuGYQ80FVMznKW8ppNUqOEP3YLbE=";
+    sha256 = "sha256-a4d79OHAwoljzoACp437+pHjRkHvteq31HBNYU+z+uw=";
   };
 
   nativeBuildInputs = [ makeWrapper ];
