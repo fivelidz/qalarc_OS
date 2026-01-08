@@ -8,7 +8,7 @@
   # Boot configuration
   boot = {
     # Use CachyOS kernel from Chaotic-Nyx for performance
-    # kernelPackages = pkgs.linuxPackages_cachyos; # Disabled - use standard kernel
+    kernelPackages = pkgs.linuxPackages_latest; # CachyOS needs source build
 
     # Boot loader configuration (GRUB with BTRFS snapshot support)
     loader = {
