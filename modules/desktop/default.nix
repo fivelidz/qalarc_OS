@@ -35,6 +35,9 @@
     kdePackages.kwalletmanager
     kdePackages.kdeconnect-kde  # Phone integration
 
+    # Communication
+    signal-desktop  # Secure messaging
+
     # Tiling extension for KWin (Krohnkite for Plasma 6)
     # Note: kdePackages.krohnkite and kwin-bismuth may not be packaged in 25.05
     # Users can install manually via KWin Scripts in System Settings
