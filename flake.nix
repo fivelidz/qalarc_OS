@@ -43,6 +43,7 @@
           ./modules/ai-coding  # Claude Code, OpenCode, TMUX, "Open in AI" context menu
           ./modules/nixos-ai-assistant
           ./modules/branding  # Qalarc wallpapers and welcome wizard
+          ./modules/messaging  # Signal CLI, WhatsApp (nchat)
           snapperModule  # Can be default or single-drive variant
           ./modules/networking
           ./modules/development
@@ -93,6 +94,8 @@
 
         # Low-end mini PC (8GB RAM, 256GB storage)
         # For servers, assistants, or standalone workstations
+        # Same features as full system - hardware detection handles AI capabilities
+        # Uses XFCE instead of Plasma for lighter resource usage
         mini-pc-low-end = nixpkgs.lib.nixosSystem {
           inherit system;
           modules = [
@@ -102,11 +105,13 @@
             ./hosts/mini-pc-low-end/configuration.nix
             ./hosts/mini-pc-low-end/hardware-configuration.nix
             
-            # Branding (wallpapers and welcome wizard)
+            # Note: desktop module NOT included - uses XFCE from host config
             ./modules/branding
-            
-            # AI coding tools (lighter weight for low-end)
             ./modules/ai-coding
+            ./modules/messaging  # Signal CLI, WhatsApp
+            ./modules/networking
+            ./modules/development
+            ./modules/media
           ];
         };
 

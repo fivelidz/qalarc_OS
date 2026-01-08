@@ -75,15 +75,15 @@
 
   # Avahi for local network discovery (mDNS/DNS-SD)
   services.avahi = {
-    enable = true;
-    nssmdns4 = true;
+    enable = lib.mkDefault true;
+    nssmdns4 = lib.mkDefault true;
     publish = {
-      enable = true;
-      addresses = true;
-      domain = true;
-      hinfo = true;
-      userServices = true;
-      workstation = true;
+      enable = lib.mkDefault true;
+      addresses = lib.mkDefault true;
+      domain = lib.mkDefault true;
+      hinfo = lib.mkDefault true;
+      userServices = lib.mkDefault true;
+      workstation = lib.mkDefault true;
     };
   };
 

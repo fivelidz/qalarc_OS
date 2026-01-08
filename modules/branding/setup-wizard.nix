@@ -105,12 +105,19 @@
         if [ "$MEM_TOTAL" -ge 120 ]; then
           echo -e "           ''${GREEN}✓ High-memory system detected - can run 405B models''${NC}"
           SYSTEM_TIER="high"
+          CAN_RUN_LOCAL_AI=true
         elif [ "$MEM_TOTAL" -ge 60 ]; then
           echo -e "           ''${GREEN}✓ Medium system - can run 70B models''${NC}"
           SYSTEM_TIER="medium"
-        else
-          echo -e "           ''${YELLOW}! Lower memory - best for 7B-13B models''${NC}"
+          CAN_RUN_LOCAL_AI=true
+        elif [ "$MEM_TOTAL" -ge 30 ]; then
+          echo -e "           ''${YELLOW}○ Can run smaller local models (7B-13B)''${NC}"
           SYSTEM_TIER="low"
+          CAN_RUN_LOCAL_AI=true
+        else
+          echo -e "           ''${YELLOW}! Limited RAM - local AI models not recommended''${NC}"
+          SYSTEM_TIER="minimal"
+          CAN_RUN_LOCAL_AI=false
         fi
         
         # GPU
@@ -136,12 +143,33 @@
         case $SYSTEM_TIER in
           high)
             echo -e "  ''${DIM}Recommended: Llama 405B, Multiple 70B models, Full knowledge base''${NC}"
+            echo -e "  ''${GREEN}✓ All local AI features available''${NC}"
             ;;
           medium)
             echo -e "  ''${DIM}Recommended: Llama 70B, Qwen 72B, Medical/Legal knowledge bases''${NC}"
+            echo -e "  ''${GREEN}✓ All local AI features available''${NC}"
             ;;
           low)
-            echo -e "  ''${DIM}Recommended: Mistral 7B, Llama 8B, Lightweight knowledge bases''${NC}"
+            echo -e "  ''${DIM}Recommended: Mistral 7B, Llama 8B, Phi-3, Lightweight models''${NC}"
+            echo -e "  ''${GREEN}✓ Local AI available with smaller models''${NC}"
+            ;;
+          minimal)
+            echo -e "  ''${DIM}Your system has limited RAM for local AI models.''${NC}"
+            echo ""
+            echo -e "  ''${YELLOW}╭─────────────────────────────────────────────────────────────╮''${NC}"
+            echo -e "  ''${YELLOW}│  LOCAL AI NOTE                                             │''${NC}"
+            echo -e "  ''${YELLOW}├─────────────────────────────────────────────────────────────┤''${NC}"
+            echo -e "  ''${YELLOW}│  Your system has less than 32GB RAM. Running large local   │''${NC}"
+            echo -e "  ''${YELLOW}│  AI models (Llama, Qwen, etc.) is not recommended.         │''${NC}"
+            echo -e "  ''${YELLOW}│                                                             │''${NC}"
+            echo -e "  ''${YELLOW}│  You can still use:                                        │''${NC}"
+            echo -e "  ''${YELLOW}│    • Claude Code (cloud-based, requires API key)           │''${NC}"
+            echo -e "  ''${YELLOW}│    • All other Qalarc features (themes, tools, etc.)       │''${NC}"
+            echo -e "  ''${YELLOW}│    • Signal CLI and WhatsApp CLI                           │''${NC}"
+            echo -e "  ''${YELLOW}│    • Development tools, browsers, media apps               │''${NC}"
+            echo -e "  ''${YELLOW}│                                                             │''${NC}"
+            echo -e "  ''${YELLOW}│  For local AI, consider upgrading to 64GB+ RAM.            │''${NC}"
+            echo -e "  ''${YELLOW}╰─────────────────────────────────────────────────────────────╯''${NC}"
             ;;
         esac
         echo -e "''${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━''${NC}"

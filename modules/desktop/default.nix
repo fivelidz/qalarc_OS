@@ -96,8 +96,8 @@
   # KDE Connect (firewall rules for phone integration)
   programs.kdeconnect.enable = true;
 
-  # Enable CUPS for printing
-  services.printing.enable = true;
+  # Enable CUPS for printing (mkDefault allows hosts to override)
+  services.printing.enable = lib.mkDefault true;
 
   # Font configuration for better readability
   fonts = {
