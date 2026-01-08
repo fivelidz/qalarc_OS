@@ -522,6 +522,10 @@ install_nixos() {
 
     local flake_path="/mnt/home/$USERNAME/qalarc_OS#$FLAKE_TARGET"
 
+    # Create /mnt/tmp for nixos-install (required for mktemp)
+    mkdir -p /mnt/tmp
+    chmod 1777 /mnt/tmp
+
     log_info "Installing from flake: $flake_path"
     log_warn "This will take 20-60 minutes depending on internet speed..."
     echo ""
