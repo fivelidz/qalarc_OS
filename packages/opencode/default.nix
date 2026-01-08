@@ -16,7 +16,7 @@ buildGoModule rec {
 
   # Vendor hash will need to be updated after first build attempt
   # Run: nix build .#opencode 2>&1 | grep "got:"
-  vendorHash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+  vendorHash = "sha256-Kcwd8deHug7BPDzmbdFqEfoArpXJb1JtBKuk+drdohM=";
 
   ldflags = [
     "-s"
