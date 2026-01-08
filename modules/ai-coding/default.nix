@@ -11,12 +11,7 @@
     
     # Terminal and Multiplexer
     ghostty
-    tmux
-    
-    # TMUX Plugin Manager
-    tmuxPlugins.tpm
-    tmuxPlugins.resurrect
-    tmuxPlugins.continuum
+    # tmux installed via programs.tmux below
     
     # Code editors with AI support
     neovim
@@ -31,7 +26,7 @@
     btop
     
     # GUI dependencies for dialogs
-    kdialog
+    kdePackages.kdialog
     yad  # fallback GTK dialog
     
     # ========================================================================
@@ -187,7 +182,7 @@
             ghostty -e qalarc-ai-workspace
             ;;
           "models")
-            ghostty -e bash -c "echo 'Ollama Model Manager'; echo ''; ollama list; echo ''; echo 'Commands: ollama pull <model>, ollama rm <model>'; echo ''; exec bash"
+            ghostty -e bash -c "echo 'Ollama Model Manager'; echo; ollama list; echo; echo 'Commands: ollama pull <model>, ollama rm <model>'; echo; exec bash"
             ;;
         esac
       fi
@@ -212,12 +207,12 @@
         # Main pane (left) - AI chat
         tmux send-keys -t $SESSION_NAME "echo 'Welcome to Qalarc AI Workspace'" Enter
         tmux send-keys -t $SESSION_NAME "echo 'Starting Ollama...'" Enter
-        tmux send-keys -t $SESSION_NAME "echo ''" Enter
+        tmux send-keys -t $SESSION_NAME "echo" Enter
         tmux send-keys -t $SESSION_NAME "echo 'Commands:'" Enter
         tmux send-keys -t $SESSION_NAME "echo '  claude        - Start Claude Code'" Enter
         tmux send-keys -t $SESSION_NAME "echo '  opencode      - Start OpenCode (local models)'" Enter
         tmux send-keys -t $SESSION_NAME "echo '  ollama run <model> - Chat with model'" Enter
-        tmux send-keys -t $SESSION_NAME "echo ''" Enter
+        tmux send-keys -t $SESSION_NAME "echo" Enter
         
         # Right pane - System monitor
         tmux split-window -h -t $SESSION_NAME
@@ -558,22 +553,12 @@
     # Ctrl+a then O to open opencode in new pane
     bind O split-window -h -c "#{pane_current_path}" "opencode"
 
-    # Tmux Plugin Manager and Session Saving
-    set -g @plugin 'tmux-plugins/tpm'
-    set -g @plugin 'tmux-plugins/tmux-resurrect'
-    set -g @plugin 'tmux-plugins/tmux-continuum'
-
-    # Auto-restore sessions when tmux starts
+    # Session Saving - tmux-resurrect and tmux-continuum
+    # Note: On NixOS, plugins are loaded via programs.tmux or system config
+    # These settings configure the plugins when available
     set -g @continuum-restore 'on'
-
-    # Save session every 15 minutes
     set -g @continuum-save-interval '15'
-
-    # Resurrect vim sessions too
     set -g @resurrect-strategy-vim 'session'
-
-    # Initialize TPM (keep this line at the very bottom)
-    run '~/.tmux/plugins/tpm/tpm'
   '';
 
   # Ghostty Configuration
@@ -655,4 +640,13 @@
     Icon=utilities-terminal
     Exec=qalarc-open-in-ai "%f"
   '';
+
+  # Use programs.tmux for proper plugin handling
+  programs.tmux = {
+    enable = true;
+    plugins = with pkgs.tmuxPlugins; [
+      resurrect
+      continuum
+    ];
+  };
 }
