@@ -205,13 +205,13 @@
         
         # Split into panes
         # Main pane (left) - AI chat
-        tmux send-keys -t $SESSION_NAME "echo 'Welcome to Qalarc AI Workspace'" Enter
-        tmux send-keys -t $SESSION_NAME "echo 'Starting Ollama...'" Enter
+        tmux send-keys -t $SESSION_NAME "echo '''Welcome to Qalarc AI Workspace'''" Enter
+        tmux send-keys -t $SESSION_NAME "echo '''Starting Ollama...'''" Enter
         tmux send-keys -t $SESSION_NAME "echo" Enter
-        tmux send-keys -t $SESSION_NAME "echo 'Commands:'" Enter
-        tmux send-keys -t $SESSION_NAME "echo '  claude        - Start Claude Code'" Enter
-        tmux send-keys -t $SESSION_NAME "echo '  opencode      - Start OpenCode (local models)'" Enter
-        tmux send-keys -t $SESSION_NAME "echo '  ollama run <model> - Chat with model'" Enter
+        tmux send-keys -t $SESSION_NAME "echo '''Commands:'''" Enter
+        tmux send-keys -t $SESSION_NAME "echo '''  claude        - Start Claude Code'''" Enter
+        tmux send-keys -t $SESSION_NAME "echo '''  opencode      - Start OpenCode (local models)'''" Enter
+        tmux send-keys -t $SESSION_NAME "echo '''  ollama run <model> - Chat with model'''" Enter
         tmux send-keys -t $SESSION_NAME "echo" Enter
         
         # Right pane - System monitor
@@ -221,7 +221,7 @@
         # Bottom pane - Command runner
         tmux select-pane -t $SESSION_NAME:0.0
         tmux split-window -v -t $SESSION_NAME
-        tmux send-keys -t $SESSION_NAME "echo 'Command runner pane - execute AI-suggested commands here'" Enter
+        tmux send-keys -t $SESSION_NAME "echo '''Command runner pane - execute AI-suggested commands here'''" Enter
         
         # Set pane sizes (70/30 horizontal, 70/30 vertical)
         tmux select-layout -t $SESSION_NAME main-vertical
