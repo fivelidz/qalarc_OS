@@ -140,9 +140,14 @@
   };
 
   # Set a default password for live system
-  users.users.root.initialPassword = "nixos";
+  # Use lib.mkForce to override the base installer's empty initialHashedPassword
+  users.users.root = {
+    initialHashedPassword = lib.mkForce null;
+    initialPassword = "nixos";
+  };
   users.users.nixos = {
     isNormalUser = true;
+    initialHashedPassword = lib.mkForce null;
     initialPassword = "nixos";
     extraGroups = [ "wheel" "networkmanager" ];
   };

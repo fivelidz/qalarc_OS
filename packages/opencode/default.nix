@@ -11,10 +11,12 @@ buildGoModule rec {
     owner = "opencode-ai";
     repo = "opencode";
     rev = "v${version}";
-    hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="; # Will need to be updated
+    sha256 = "03696q34mfwmgbdqis1rpzdlq4z2qfpqppzq3wqmag9ax6sqscaj";
   };
 
-  vendorHash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="; # Will need to be updated
+  # Vendor hash will need to be updated after first build attempt
+  # Run: nix build .#opencode 2>&1 | grep "got:"
+  vendorHash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
 
   ldflags = [
     "-s"

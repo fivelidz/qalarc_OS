@@ -85,7 +85,7 @@
       
       step_welcome() {
         clear_screen
-        print_step "1/8" "SYSTEM VERIFICATION"
+        print_step "1/9" "SYSTEM VERIFICATION"
         
         echo -e "  ''${WHITE}Checking your system...''${NC}"
         echo ""
@@ -184,7 +184,7 @@
       
       step_theme() {
         clear_screen
-        print_step "2/8" "DESKTOP APPEARANCE"
+        print_step "2/9" "DESKTOP APPEARANCE"
         
         echo -e "  ''${WHITE}Choose your desktop style:''${NC}"
         echo ""
@@ -233,7 +233,7 @@
       
       step_usecase() {
         clear_screen
-        print_step "3/8" "PRIMARY USE CASE"
+        print_step "3/9" "PRIMARY USE CASE"
         
         echo -e "  ''${WHITE}What will you primarily use this system for?''${NC}"
         echo -e "  ''${DIM}(Select all that apply, space-separated)''${NC}"
@@ -278,7 +278,7 @@
       
       step_models() {
         clear_screen
-        print_step "4/8" "AI MODEL SELECTION"
+        print_step "4/9" "AI MODEL SELECTION"
         
         TIER=$(cat "$CONFIG_DIR/system-tier" 2>/dev/null || echo "medium")
         
@@ -352,7 +352,7 @@
       
       step_knowledge() {
         clear_screen
-        print_step "5/8" "OFFLINE KNOWLEDGE BASES"
+        print_step "5/9" "OFFLINE KNOWLEDGE BASES"
         
         echo -e "  ''${WHITE}Select offline knowledge bases to install:''${NC}"
         echo -e "  ''${DIM}These enable AI to answer questions without internet''${NC}"
@@ -409,7 +409,7 @@
       
       step_devtools() {
         clear_screen
-        print_step "6/8" "DEVELOPER & POWER USER TOOLS"
+        print_step "6/9" "DEVELOPER & POWER USER TOOLS"
         
         echo -e "  ''${WHITE}Select additional tools to install:''${NC}"
         echo ""
@@ -450,7 +450,7 @@
       
       step_network() {
         clear_screen
-        print_step "7/8" "NETWORK & REMOTE ACCESS"
+        print_step "7/9" "NETWORK & REMOTE ACCESS"
         
         echo -e "  ''${WHITE}Configure remote access options:''${NC}"
         echo ""
@@ -487,12 +487,97 @@
       }
       
       # ─────────────────────────────────────────────────────────────────────
-      #  STEP 8: SUMMARY & APPLY
+      #  STEP 8: APPLICATIONS & COMMUNICATION
+      # ─────────────────────────────────────────────────────────────────────
+      
+      step_apps() {
+        clear_screen
+        print_step "8/9" "APPLICATIONS & COMMUNICATION"
+        
+        echo -e "  ''${WHITE}Select applications to install:''${NC}"
+        echo ""
+        
+        echo -e "  ''${CYAN}━━━ MESSAGING ━━━''${NC}"
+        print_option "1" "''${WHITE}Signal''${NC} - Encrypted messaging (CLI + Desktop)"
+        print_info "     Privacy-focused, E2E encrypted, qalarc-signal helper"
+        echo ""
+        print_option "2" "''${WHITE}WhatsApp''${NC} - Via nchat terminal client"
+        print_info "     Access WhatsApp from terminal, qalarc-whatsapp helper"
+        echo ""
+        print_option "3" "''${WHITE}Telegram''${NC} - Via nchat terminal client"
+        print_info "     Telegram support included with nchat"
+        echo ""
+        print_option "4" "''${WHITE}Discord''${NC} - Community chat"
+        print_info "     Desktop client for communities"
+        echo ""
+        
+        echo -e "  ''${CYAN}━━━ BROWSERS ━━━''${NC}"
+        print_option "5" "''${WHITE}Firefox''${NC} - Privacy-focused browser"
+        print_option "6" "''${WHITE}Brave''${NC} - Chromium with ad blocking"
+        print_option "7" "''${WHITE}Chromium''${NC} - Open source Chrome"
+        echo ""
+        
+        echo -e "  ''${CYAN}━━━ MEDIA & PRODUCTIVITY ━━━''${NC}"
+        print_option "8" "''${WHITE}LibreOffice''${NC} - Office suite"
+        print_option "9" "''${WHITE}GIMP''${NC} - Image editing"
+        print_option "10" "''${WHITE}OBS Studio''${NC} - Streaming/recording"
+        print_option "11" "''${WHITE}VLC''${NC} - Media player"
+        echo ""
+        
+        echo -e "  ''${CYAN}━━━ UTILITIES ━━━''${NC}"
+        print_option "12" "''${WHITE}Bitwarden''${NC} - Password manager"
+        print_option "13" "''${WHITE}Syncthing''${NC} - File sync"
+        print_option "14" "''${WHITE}qBittorrent''${NC} - Torrent client"
+        echo ""
+        
+        read -p "  Select applications (e.g., 1 2 5 11): " apps_input
+        
+        APPS=""
+        for app in $apps_input; do
+          case $app in
+            1) APPS="$APPS signal" ;;
+            2) APPS="$APPS whatsapp" ;;
+            3) APPS="$APPS telegram" ;;
+            4) APPS="$APPS discord" ;;
+            5) APPS="$APPS firefox" ;;
+            6) APPS="$APPS brave" ;;
+            7) APPS="$APPS chromium" ;;
+            8) APPS="$APPS libreoffice" ;;
+            9) APPS="$APPS gimp" ;;
+            10) APPS="$APPS obs" ;;
+            11) APPS="$APPS vlc" ;;
+            12) APPS="$APPS bitwarden" ;;
+            13) APPS="$APPS syncthing" ;;
+            14) APPS="$APPS qbittorrent" ;;
+          esac
+        done
+        
+        echo "$APPS" > "$CONFIG_DIR/applications"
+        echo ""
+        print_selected "Applications: $APPS"
+        
+        # Show messaging hints
+        if echo "$APPS" | grep -q "signal\|whatsapp"; then
+          echo ""
+          echo -e "  ''${CYAN}━━━ MESSAGING SETUP HINTS ━━━''${NC}"
+          if echo "$APPS" | grep -q "signal"; then
+            echo -e "  ''${DIM}Signal: Run 'qalarc-signal link' to pair with phone''${NC}"
+          fi
+          if echo "$APPS" | grep -q "whatsapp"; then
+            echo -e "  ''${DIM}WhatsApp: Run 'qalarc-whatsapp setup' for instructions''${NC}"
+          fi
+        fi
+        
+        wait_key
+      }
+      
+      # ─────────────────────────────────────────────────────────────────────
+      #  STEP 9: SUMMARY & APPLY
       # ─────────────────────────────────────────────────────────────────────
       
       step_summary() {
         clear_screen
-        print_step "8/8" "CONFIGURATION SUMMARY"
+        print_step "9/9" "CONFIGURATION SUMMARY"
         
         echo -e "  ''${WHITE}Your Qalarc AI-OS will be configured with:''${NC}"
         echo ""
@@ -502,12 +587,14 @@
         USECASES=$(cat "$CONFIG_DIR/usecases" 2>/dev/null)
         MODELS=$(cat "$CONFIG_DIR/models" 2>/dev/null)
         KB=$(cat "$CONFIG_DIR/knowledge-bases" 2>/dev/null)
+        APPS=$(cat "$CONFIG_DIR/applications" 2>/dev/null)
         
         echo -e "  ''${CYAN}System Tier:''${NC}      $TIER"
         echo -e "  ''${CYAN}Theme:''${NC}            $THEME"
         echo -e "  ''${CYAN}Use Cases:''${NC}        $USECASES"
         echo -e "  ''${CYAN}AI Models:''${NC}        $MODELS"
         echo -e "  ''${CYAN}Knowledge Bases:''${NC}  ''${KB:-none selected}"
+        echo -e "  ''${CYAN}Applications:''${NC}     ''${APPS:-defaults only}"
         echo ""
         
         echo -e "''${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━''${NC}"
@@ -633,6 +720,7 @@
         step_knowledge
         step_devtools
         step_network
+        step_apps
         step_summary
       }
       

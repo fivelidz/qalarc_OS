@@ -10,11 +10,13 @@ buildNpmPackage rec {
 
   src = fetchurl {
     url = "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-${version}.tgz";
-    hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="; # Will need to be updated with: nix-prefetch-url <url>
+    sha256 = "1sqn80dmbfwdczzzmc4bcy0wykl9wyf07gpr7x009hsk3ays5jd0";
   };
 
-  # Claude Code has no dependencies (empty package-lock.json)
-  npmDepsHash = "sha256-0000000000000000000000000000000000000000000=";
+  # Claude Code has no dependencies
+  # This hash will need to be updated after first build attempt
+  # Run: nix build .#claude-code 2>&1 | grep "got:"
+  npmDepsHash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
 
   dontNpmBuild = true;
 
